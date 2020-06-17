@@ -15,8 +15,8 @@ async function dlCharts() {
   let prefixDate = isoDate.toISOString().substring(0,10).replace(/-/g, '');
 
   let selectors = {
-    'WebXPRT3': '#WebXPRT_3_Windows_Chrome_Canary',
     'Speedometer2': '#Speedometer_2_0_Windows_Chrome_Canary',
+    'WebXPRT3': '#WebXPRT_3_Windows_Chrome_Canary',
     'Unity3D': '#Unity3D2018_Windows_Chrome_Canary',
     'JetStream2': '#JetStream2_Windows_Chrome_Canary'
   };
@@ -32,12 +32,13 @@ async function dlCharts() {
   });
   const page = await browser.newPage();
   await page.goto(settings.chart_page_url);
+  let i = 1;
   for (let workload of settings.workloads) {
     let workloadName = workload.name;
     let element = await page.$(selectors[workloadName]);
     console.log(`Downloading trends image for ${workloadName}`);
     await element.screenshot({
-        path: path.join(process.cwd(), 'charts', `${prefixDate}-${workloadName}-trends.png`)
+        path: path.join(process.cwd(), 'charts', `${i++}-${prefixDate}-${workloadName}-trends.png`)
     });     
   }
 
