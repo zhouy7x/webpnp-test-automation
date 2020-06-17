@@ -72,11 +72,15 @@ async function writeDataToExcel(pathname, jsonData) {
   let tableHeader = ['component', 'case_id', 'unit'];
   let workloadNameConverter = {
     'Speedometer2': 'Speedometer 2.0',
-    'WebXPRT3': 'WebXPRT 3'
+    'WebXPRT3': 'WebXPRT 3',
+    'Unity3D': 'Unity3D2018',
+    'JetStream2': 'JetStream2'
   };
   let workloadUnits = {
     'Speedometer2': 'score',
-    'WebXPRT3': 'ms'
+    'WebXPRT3': 'ms',
+    'Unity3D': 'score',
+    'JetStream2': 'score'
   };
   let totalWorkloadScoreRows = [];
   let detailedWorkloadsScoreRows = [];

@@ -67,19 +67,19 @@ async function runUnity3DTest(workload) {
         logList.push(msg.text());
         // "Overall: " is the last record of result log
         if (msg.text().includes("Overall: ")) {
-		  await page.close();
-		  console.log("length: ", logList.length);
-		  let logIndex = 0;
-		  logList.reverse();
-		  for (let i =0; i< logList.length; i++) {
-			  if(logList[i].includes("Overall: ")) {
-				  logIndex = i;
-				  break;
-			  }
-		  }
+          await page.close();
+          console.log("length: ", logList.length);
+          let logIndex = 0;
+          logList.reverse();
+          for (let i = 0; i < logList.length; i++) {
+            if (logList[i].includes("Overall: ")) {
+              logIndex = i;
+              break;
+            }
+          }
           // Get 13 records as which are the exact test results
           let scoresText = logList.slice(logIndex, logIndex + 13);
-		  scoresText.reverse();
+          scoresText.reverse();
           // console.log(`********** ${scoresText}  **********`);
           for (const item of scoresText) {
             const key = item.split(": ")[0];
@@ -91,13 +91,13 @@ async function runUnity3DTest(workload) {
               scores[key] = value;
           }
           if (exactKeys.join(" ") === resultKeys.join(" ")) {
-			console.log("********** Running Unity3D tests completed **********");
+            console.log("********** Running Unity3D tests completed **********");
             console.log('********** Unity3D tests score: **********');
             console.log(scores);
             await browser.close();
             resolve({ date: Date(), scores: scores });
           } else {
-			await browser.close();
+            await browser.close();
             reject(`Error: Expected ${resultKeys} but got ${exactKeys}`);
           }
         }
@@ -105,4 +105,5 @@ async function runUnity3DTest(workload) {
     });
   });
 }
+
 module.exports = runUnity3DTest;

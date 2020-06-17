@@ -16,7 +16,9 @@ async function dlCharts() {
 
   let selectors = {
     'WebXPRT3': '#WebXPRT_3_Windows_Chrome_Canary',
-    'Speedometer2': '#Speedometer_2_0_Windows_Chrome_Canary'
+    'Speedometer2': '#Speedometer_2_0_Windows_Chrome_Canary',
+    'Unity3D': '#Unity3D2018_Windows_Chrome_Canary',
+    'JetStream2': '#JetStream2_Windows_Chrome_Canary'
   };
   let chartsDir = path.join(process.cwd(), 'charts');
   if (! fs.existsSync(chartsDir)) {
