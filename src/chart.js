@@ -50,6 +50,9 @@ async function dlCharts() {
 async function getChartFiles() {
 
   let chartsDir = path.join(process.cwd(), 'charts');
+
+  if (!fs.existsSync(chartsDir))
+    fs.mkdirSync(chartsDir);
   let chartFiles = await fs.promises.readdir(chartsDir);
 
   if (chartFiles.length === 0)  {
