@@ -133,7 +133,7 @@ async function writeDataToExcel(pathname, jsonData) {
 
   for (let i = 0; i < detailedWorkloadsScoreRows.length; i++)
     for (let j = 0; j < detailedWorkloadsScoreRows[i].length; j++)
-      ws.cell(i + 4, j + 1).string(detailedWorkloadsScoreRows[i][j]);
+      ws.cell(i + 2 + totalWorkloadScoreRows.length, j + 1).string(detailedWorkloadsScoreRows[i][j]);
 
   await wb.write(pathname);
 
