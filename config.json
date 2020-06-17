@@ -34,12 +34,12 @@
   "mail_test_report": {
     "from": "wanming.lin@intel.com",
     "to": ["chromiumopt@intel.com", "shiyu.zhang@intel.com", "qi.zhang@intel.com",
-          "jonathan.ding@intel.com", "canx.cao@intel.com", "zhongx.qiu@intel.com",
+          "jonathan.ding@intel.com", "canx.cao@intel.com",
           "yihuix.xie@intel.com", "yangx.a.zhou@intel.com"]
   },
   "mail_dev_notice": {
     "from": "wanming.lin@intel.com",
-    "to":["wanming.lin@intel.com", "zhongx.qiu@intel.com"]
+    "to":["wanming.lin@intel.com"]
   },
   "result_server": {
     "host": "10.239.115.92",
