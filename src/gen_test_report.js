@@ -203,14 +203,29 @@ function drawCompareResult(basedValue, comparedValue) {
   return `<td style="color:${resultStyle}">${result}%</td>`;
 }
 
-function drawDeviceInfoTable(result) {
+function drawDeviceInfoTable(basedResult, competitorResult) {
   let deviceInfoTable = "<table>";
-  const deviceInfo = result.device_info;
-  for (const key in deviceInfo) {
-    if (key === "CPU")
-      deviceInfoTable += `<tr><td>${key}</td><td>${deviceInfo[key].info}</td></tr>`;
-    else
-      deviceInfoTable += `<tr><td>${key}</td><td>${deviceInfo[key]}</td></tr>`;
+  const basedDeviceInfo = basedResult.device_info;
+  let header = `<tr><th>Category</th><th>${basedDeviceInfo["CPU"]["mfr"]}</th>`;
+  let compDeviceInfo = "";
+  if (competitorResult !== "") {
+    compDeviceInfo = competitorResult.device_info;
+    header += `<th>${compDeviceInfo["CPU"]["mfr"]}</th>`;
+  }
+  deviceInfoTable += header + "</tr>";
+
+  for (const key in basedDeviceInfo) {
+    if(compDeviceInfo === "") {
+      if (key === "CPU")
+        deviceInfoTable += `<tr><td>${key}</td><td>${basedDeviceInfo[key].info}</td></tr>`;
+      else
+        deviceInfoTable += `<tr><td>${key}</td><td>${basedDeviceInfo[key]}</td></tr>`;
+    } else {
+      if (key === "CPU")
+        deviceInfoTable += `<tr><td>${key}</td><td>${basedDeviceInfo[key].info}</td><td>${compDeviceInfo[key].info}</td></tr>`;
+      else
+        deviceInfoTable += `<tr><td>${key}</td><td>${basedDeviceInfo[key]}</td><td>${compDeviceInfo[key]}</td></tr>`;
+    }
   }
   return `${deviceInfoTable}</table>`;
 }
@@ -244,6 +259,7 @@ async function genTestReport(resultPaths) {
   let basedResult;
   let flag = false;
   const hasPreResult = await hasPreResults(resultPaths);
+  let competitorResult = "";
   for (const key in resultPaths) {
     const resultPath = resultPaths[key];
 
@@ -257,7 +273,6 @@ async function genTestReport(resultPaths) {
     }
 
     // Draw result table
-    let competitorResult = "";
     // Find previous test result
     const preResult = await findPreTestResult(resultPath);
     // Try to find competitor test result only when based test result is running on Intel
@@ -277,7 +292,7 @@ async function genTestReport(resultPaths) {
   summaryTable += "</table><br>";
   roundsTable += "</table><br><br>";
   // Get device info table
-  const deviceInfoTable = drawDeviceInfoTable(basedResult);
+  const deviceInfoTable = drawDeviceInfoTable(basedResult, competitorResult);
   // Define html style
   const htmlStyle = "<style> \
 		* {font-family: Calibri (Body);} \
