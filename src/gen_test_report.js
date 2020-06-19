@@ -7,7 +7,6 @@ const os = require('os');
 const cpuList = require('../cpu_list.json');
 const chart = require('./chart.js');
 
-
 /*
 * Draw table header
 * @param {String}, type, one of ["summary", "details"]
@@ -321,13 +320,17 @@ async function genTestReport(resultPaths) {
   return Promise.resolve(html);
 }
 
-/* // Debug usage
-const workload =  {
-    "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200618193506_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-    "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200618203935_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-    "Unity3D": path.join(__dirname, "../results/Windows/Unity3D/20200618212254_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-    "JetStream2": path.join(__dirname, "../results/Windows/JetStream2/20200618221801_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json")
-};
-genTestReport(workload);
-*/
+// // Used for debug
+// (async function() {
+// const workload =  {
+//     "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200618193506_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
+//     "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200618203935_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
+//     "Unity3D": path.join(__dirname, "../results/Windows/Unity3D/20200618212254_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
+//     "JetStream2": path.join(__dirname, "../results/Windows/JetStream2/20200618221801_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json")
+// };
+// const result =await genTestReport(workload);
+// const chartImages = await chart.getChartFiles();
+// await sendMail("test", result, "error", chartImages);
+// })();
+
 module.exports = genTestReport;

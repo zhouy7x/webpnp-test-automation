@@ -28,9 +28,11 @@ async function dlCharts() {
   platformBrowser.configChromePath(settings);
   const browser = await chromium.launch({
     headless: false,
-    executablePath: settings.chrome_path
+    executablePath: settings.chrome_path,
+    args: ['--start-maximized']
   });
-  const page = await browser.newPage();
+  const context = await browser.newContext({viewport: null});
+  const page = await context.newPage();
   await page.goto(settings.chart_page_url);
   let i = 1;
   for (let workload of settings.workloads) {
