@@ -35,12 +35,13 @@ function sortScores(scoresArray, score, propertyName) {
 async function runWorkload(workload, executor) {
   let originScoresArray = [];
   let scoresArray = [];
+  const flags = settings.chrome_flags;
   // if workload === unity3D, warm up
   if (workload.name === "Unity3D") {
-    await executor(workload);
+    await executor(workload, flags);
   }
   for (let i = 0; i < workload.run_times; i++) {
-    let thisScore = await executor(workload);
+    let thisScore = await executor(workload, flags);
     originScoresArray.push(thisScore);
     scoresArray.push(thisScore);
 
@@ -186,7 +187,7 @@ async function genWorkloadsResults(deviceInfo) {
     'Unity3D': runUnity3D,
     'JetStream2': runJetStream2
   };
-
+genWorkloadResult
   for (const workload of settings.workloads) {
     let executor = executors[workload.name];
     results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor);

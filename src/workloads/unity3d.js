@@ -4,8 +4,12 @@ const chromium = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
 
-async function runUnity3DTest(workload) {
+async function runUnity3DTest(workload, flags) {
   // let workload = settings.workloads[1];
+  let args = [];
+  if (flags !== undefined) {
+    args.concat(flags);
+  }
   platformBrowser.configChromePath(settings);
   console.log(`********** Start running ${workload.name} tests **********`);
   const userDataDir = path.join(process.cwd(), 'userData');
@@ -16,7 +20,7 @@ async function runUnity3DTest(workload) {
     headless: false,
     executablePath: settings.chrome_path,
     userDataDir: userDataDir,
-    // args: ["--start-fullscreen"],
+    args: args,
     defaultViewport: null
   });
   const page = await browser.newPage();

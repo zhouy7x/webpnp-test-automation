@@ -4,9 +4,12 @@ const { chromium } = require('playwright-chromium');
 const path = require('path');
 const fs = require('fs');
 
-async function runJetStream2Test(workload) {
+async function runJetStream2Test(workload, flags) {
   // let workload = settings.workloads[1];
-
+  let args = ["--start-maximized"];
+  if (flags !== undefined) {
+    args.concat(flags);
+  }
   platformBrowser.configChromePath(settings);
   console.log(`********** Start running ${workload.name} tests **********`);
   const userDataDir = path.join(process.cwd(), 'userData');
@@ -17,7 +20,7 @@ async function runJetStream2Test(workload) {
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: settings.chrome_path,
-    args: ["--start-maximized"]
+    args: args
     // viewport: null
   });
   const page = await browser.newPage();
