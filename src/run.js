@@ -78,7 +78,7 @@ async function storeTestData(deviceInfo, workload, jsonData) {
   let date = new Date();
   let isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
   let jsonDate = isoDate.toISOString().split('.')[0].replace(/T|-|:/g, '');
-  let browser = deviceInfo['Browser']
+  let browser = deviceInfo['Browser'];
   let jsonFilename = jsonDate + '_' + cpuInfo + '_' + browser + '.json';
   let absJSONFilename = path.join(testResultsDir, jsonFilename);
 
@@ -102,6 +102,7 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
     'test_result': results.middle_score.scores,
     'selected_round': results.selected_round,
     'test_rounds': results.detailed_scores,
+    'chrome_flag': settings.chrome_flags,
     'execution_date': results.middle_score.date
   }
   console.log(JSON.stringify(jsonData, null, 4));
