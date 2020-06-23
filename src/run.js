@@ -91,8 +91,9 @@ async function storeTestData(deviceInfo, workload, jsonData) {
 */
 
 async function genWorkloadResult(deviceInfo, workload, executor) {
-
-  await syncRemoteDirectory(workload, 'pull');
+  if (!settings.dev_mode) {
+    await syncRemoteDirectory(workload, 'pull');
+  }
   let results = await runWorkload(workload, executor);
   let jsonData = {
     'workload': workload.name,
@@ -105,7 +106,9 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
   console.log(JSON.stringify(jsonData, null, 4));
 
   let jsonFilename = await storeTestData(deviceInfo, workload, jsonData);
-  await syncRemoteDirectory(workload, 'push');
+  if (!settings.dev_mode) {
+    await syncRemoteDirectory(workload, 'push');
+  }
   return Promise.resolve(jsonFilename);
 }
 

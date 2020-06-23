@@ -310,8 +310,10 @@ async function genTestReport(resultPaths) {
   // Composite html body
   let charts = await chart.getChartFiles();
   let chartImages = '<br/>';
-  for (let chart of charts) {
-    chartImages += '<img src="cid:' + chart.replace('.png', '') + '" style="width:480px;height:360px;"><br/>';
+  if (charts.length > 0) {
+    for (let chart of charts) {
+      chartImages += '<img src="cid:' + chart.replace('.png', '') + '" style="width:480px;height:360px;"><br/>';
+    }
   }
   const html = htmlStyle + chartImages + "<br/><b>Summary:</b>" + summaryTable + roundsTable + "<b>Details:</b>"
     + resultTables + "<br><br>" + "<b>Device Info:</b>" + deviceInfoTable;

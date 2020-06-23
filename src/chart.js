@@ -21,7 +21,7 @@ async function dlCharts() {
     'JetStream2': '#JetStream2_Windows_Chrome_Canary'
   };
   let chartsDir = path.join(process.cwd(), 'charts');
-  if (! fs.existsSync(chartsDir)) {
+  if (!fs.existsSync(chartsDir)) {
     fs.mkdirSync(chartsDir);
   }
 

@@ -30,15 +30,16 @@ async function main() {
     if (!settings.dev_mode) {
       await browser.checkBrowserVersion(deviceInfo);
     }
-
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     console.log(JSON.stringify(workloadResults, null, 4));
-    await excel.genExcelFilesAndUpload(workloadResults);
+    if (!settings.dev_mode) {
+      await excel.genExcelFilesAndUpload(workloadResults);
+    }
 
     let chartImages = [];
     // only attach the trend charts for Canary tests
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
-    if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel')) {
+    if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel') && !settings.dev_mode) {
       await excel.remoteExecUploadScript(); // upload all the .xlsx data at once
       await chart.dlCharts();
       chartImages = await chart.getChartFiles();
@@ -46,7 +47,7 @@ async function main() {
     }
 
     let mailType = 'test_report';
-    if (cpuModel.includes('AMD'))
+    if (cpuModel.includes('AMD') || settings.dev_mode)
       mailType = 'dev_notice'; // If the test is on AMD platform, then send dev team.
 
     const testReports = await genTestReport(workloadResults);

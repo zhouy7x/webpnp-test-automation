@@ -42,7 +42,7 @@ The automation test mainly takes the following actions:
   5. `mail_dev_notice` field is used for setting mail list who'd like to receive the error message when the testing goes into something wrong.
   6. On Linux platform, please set the `chrome_linux_password` field the Linux sudo password. It's required while upgrading the
   chrome as install Linux package might need sudo permission.
-  7. There is a `dev_mode`, setting it to `true` will skip the browser version check.
+  7. There is a `dev_mode`, setting it to `true` will skip the browser version check, skip generating and uploading excel file, skip test results sync and upload.
   8. If you don't want to run the test at a specific schedule, you can simply set `enable_cron` to `false`. Then the browser upgrading will also be skipped.
 
 - Run the test: restart the PC and go to this folder again and run:
