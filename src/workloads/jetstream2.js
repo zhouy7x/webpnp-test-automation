@@ -8,7 +8,7 @@ async function runJetStream2Test(workload, flags) {
   // let workload = settings.workloads[1];
   let args = ["--start-maximized"];
   if (flags !== undefined) {
-    args.concat(flags);
+    args = args.concat(flags);
   }
   platformBrowser.configChromePath(settings);
   console.log(`********** Start running ${workload.name} tests **********`);

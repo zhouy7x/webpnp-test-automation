@@ -8,7 +8,7 @@ async function runWebXPRT3Test(workload, flags) {
   // let workload = settings.workloads[0];
   let args = ["--start-maximized"];
   if (flags !== undefined) {
-    args.concat(flags);
+    args = args.concat(flags);
   }
   platformBrowser.configChromePath(settings);
   console.log('********** Start running WebXPRT3 tests **********');

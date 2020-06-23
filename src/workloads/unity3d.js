@@ -8,7 +8,7 @@ async function runUnity3DTest(workload, flags) {
   // let workload = settings.workloads[1];
   let args = [];
   if (flags !== undefined) {
-    args.concat(flags);
+    args = args.concat(flags);
   }
   platformBrowser.configChromePath(settings);
   console.log(`********** Start running ${workload.name} tests **********`);
