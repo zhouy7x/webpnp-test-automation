@@ -72,6 +72,7 @@ async function updateConfig(deviceInfo, settings) {
       path.join(process.cwd(), 'config.json'),
       JSON.stringify(settings, null, 4));
   }
+  return Promise.resolve();
 }
 
 /*

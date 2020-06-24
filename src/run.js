@@ -102,7 +102,7 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
     'test_result': results.middle_score.scores,
     'selected_round': results.selected_round,
     'test_rounds': results.detailed_scores,
-    'chrome_flag': settings.chrome_flags,
+    'chrome_flags': settings.chrome_flags,
     'execution_date': results.middle_score.date
   }
   console.log(JSON.stringify(jsonData, null, 4));
@@ -188,7 +188,6 @@ async function genWorkloadsResults(deviceInfo) {
     'Unity3D': runUnity3D,
     'JetStream2': runJetStream2
   };
-genWorkloadResult
   for (const workload of settings.workloads) {
     let executor = executors[workload.name];
     results[workload.name] = await genWorkloadResult(deviceInfo, workload, executor);
