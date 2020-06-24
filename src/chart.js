@@ -33,10 +33,13 @@ async function dlCharts() {
   });
   const context = await browser.newContext({viewport: null});
   const page = await context.newPage();
-  await page.goto(settings.chart_page_url);
+  await page.goto(settings.chart_page_url, { waitUntil: 'load', timeout: 60000 });
+  // Leave some time to wait for chart fully rendered
+  await page.waitForTimeout(10*1000);
   let i = 1;
   for (let workload of settings.workloads) {
     let workloadName = workload.name;
+    await page.waitForSelector(selectors[workloadName], {timeout: 10*1000});
     let element = await page.$(selectors[workloadName]);
     console.log(`Downloading trends image for ${workloadName}`);
     await element.screenshot({
