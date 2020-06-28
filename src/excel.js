@@ -154,6 +154,7 @@ async function uploadExcelFile(pathname) {
   };
   let remoteResultDir = `/home/${serverConfig.username}/PHP/files`;
   let error = "";
+  let remoteExcelPathName = "";
   try {
     await sftp.connect(serverConfig);
     let remoteResultDirExist = await sftp.exists(remoteResultDir);
@@ -163,7 +164,7 @@ async function uploadExcelFile(pathname) {
       console.log(`${remoteResultDir} created on remote server`);
     }
 
-    let remoteExcelPathName = remoteResultDir + `/${excelName}`;
+    remoteExcelPathName = remoteResultDir + `/${excelName}`;
     let remoteFileExist = await sftp.exists(remoteExcelPathName);
     if (remoteFileExist) {
       console.log(`${remoteExcelPathName} already exists, remove it first`);
