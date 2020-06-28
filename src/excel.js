@@ -56,9 +56,9 @@ async function genExcelFilesAndUpload(fileInfo) {
 
   let excelPathName = path.join(excelDir, excelFileName);
   await writeDataToExcel(excelPathName, results);
-  await uploadExcelFile(excelPathName);
+  const remoteExcelPathName = await uploadExcelFile(excelPathName);
 
-  return Promise.resolve();
+  return Promise.resolve(remoteExcelPathName);
 }
 
 /*
@@ -153,6 +153,7 @@ async function uploadExcelFile(pathname) {
     password: settings.result_server.password
   };
   let remoteResultDir = `/home/${serverConfig.username}/PHP/files`;
+  let error = "";
   try {
     await sftp.connect(serverConfig);
     let remoteResultDirExist = await sftp.exists(remoteResultDir);
@@ -174,16 +175,19 @@ async function uploadExcelFile(pathname) {
     console.log(`${pathname} uploaded to remote server.`);
   } catch (err) {
     console.log(err);
+    error = err;
   } finally {
     await sftp.end();
   }
-  return Promise.resolve();
+  if (error !== "")
+    return Promise.reject("Error occurs when uploading excel file: ", error);
+  return Promise.resolve(remoteExcelPathName);
 }
 
 /*
-* Remote execute upload.py to upload the excel data to web server
+* Remotely uploading the excel data to web server
 */
-async function remoteExecUploadScript() {
+async function remoteExecUploadScript(file_path) {
   let serverConfig = {
     host: settings.result_server.host,
     username: settings.result_server.username,
@@ -191,28 +195,34 @@ async function remoteExecUploadScript() {
   };
   let ssh = new SSH2Promise(serverConfig);
   let error = "";
+  const token = "4fc97c5dc10c681a87c5eb6178c60a0025299e44";
   try {
     await ssh.connect();
     console.log(`Remote server ${serverConfig.host} connected`);
     console.log(`Executing upload.py on remote server:`);
+    const curlCommand = `curl -F files=@${file_path} -F project=1 http://webpnp.sh.intel.com/api/report/ -H 'Authorization: Token ${token}'`;
+    let data = await ssh.exec(curlCommand);
+    console.log(data.toString());
     // let output = await ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`);
-    await new Promise(resolve => {
-      ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`).then((data) => {
-        console.log("This is output: ");
-      }).catch(e => {
-        error = e;
-      });
-      // Need some time to wait for ssh execution.
-      setTimeout(resolve, 15000);
-    });
+    // await new Promise(resolve => {
+    //   ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`).then((data) => {
+    //     console.log("This is output: ", data);
+    //   }).catch(e => {
+    //     error = e;
+    //   });
+    //   // Need some time to wait for ssh execution.
+    //   setTimeout(resolve, 15000);
+    // });
   } catch (err) {
+    console.log("error occurs: ");
+    console.log(error);
     error = err;
   } finally {
     await ssh.close();
   }
   if (error !== "") {
     console.log(error.toString());
-    // TODO: fix error on ssh.exec
+    // TODO: fix error on ssh.exec(curlCommand)
     // return Promise.reject(error);
   }
   console.log("************upload.py executed successfully****************");

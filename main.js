@@ -33,14 +33,14 @@ async function main() {
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     console.log(JSON.stringify(workloadResults, null, 4));
     if (!settings.dev_mode) {
-      await excel.genExcelFilesAndUpload(workloadResults);
+      // Upload each testing result as excel to webpnp test reporter
+      const remoteExcelPathName = await excel.genExcelFilesAndUpload(workloadResults);
+      await excel.remoteExecUploadScript(remoteExcelPathName); // upload the .xlsx data
     }
 
     let chartImages = [];
-    // only attach the trend charts for Canary tests
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
-    if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel') && !settings.dev_mode) {
-      await excel.remoteExecUploadScript(); // upload all the .xlsx data at once
+    if (cpuModel.includes('Intel') && !settings.dev_mode) {
       await chart.dlCharts();
       chartImages = await chart.getChartFiles();
       console.log(chartImages);
