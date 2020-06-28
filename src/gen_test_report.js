@@ -6,14 +6,16 @@ const path = require('path');
 const os = require('os');
 const cpuList = require('../cpu_list.json');
 const chart = require('./chart.js');
+// const sendMail = require('./send_mail.js');
 
 /*
 * Draw table header
 * @param {String}, type, one of ["summary", "details"]
 */
-function drawTableHeader(type, basedResult, preResult, competitorResult) {
-  let preCpu = "", preOs = "", preBrowser = "", vsPre = "";
-  let comCpu = "", comOs = "", comBrowser = "", vsCom = "</tr>";
+function drawTableHeader(type, basedResult, preResult, competitorResult, preComResult) {
+  let preCpu = "", preOs = "", preBrowser = "", basedVsPre= "";
+  let comCpu = "", comOs = "", comBrowser = "", basedVsCom = "</tr>";
+  let preComCpu = "", preComOs = "", preComBrowser = "", ComVsPre = "";
   let firstCol = "Workloads";
   if (type !== "summary")
     firstCol = basedResult.workload;
@@ -21,18 +23,24 @@ function drawTableHeader(type, basedResult, preResult, competitorResult) {
     preCpu = `<th>${preResult.device_info.CPU.info}</th>`;
     preOs = `<th>${preResult.device_info.OS}</th>`;
     preBrowser = `<th>${preResult.device_info.Browser}</th>`;
-    vsPre = `<th rowspan='3'>Chrome vs. previous (${basedResult.device_info.CPU.codename})</th>`;
+    basedVsPre= `<th rowspan='3'>Chrome vs. previous (${basedResult.device_info.CPU.codename})</th>`;
   }
   if (competitorResult !== "") {
     comCpu = `<th>${competitorResult.device_info.CPU.info}</th>`;
     comOs = `<th>${competitorResult.device_info.OS}</th>`;
     comBrowser = `<th>${competitorResult.device_info.Browser}</th>`;
-    vsCom = `<th rowspan='3'>${basedResult.device_info.CPU.codename} vs. ${competitorResult.device_info.CPU.codename}</th></tr>`;
+    basedVsCom = `<th rowspan='3'>${basedResult.device_info.CPU.codename} vs. ${competitorResult.device_info.CPU.codename}</th></tr>`;
+    if (preComResult !== "") {
+      preComCpu = `<th>${preComResult.device_info.CPU.info}</th>`;
+      preComOs = `<th>${preComResult.device_info.OS}</th>`;
+      preComBrowser = `<th>${preComResult.device_info.Browser}</th>`;
+      ComVsPre= `<th rowspan='3'>Chrome vs. previous (${preComResult.device_info.CPU.codename})</th>`;
+    }
   }
   const tableHeader = `<tr><th rowspan="3">${firstCol}</th>\
-                     ${preCpu + comCpu}<th>${basedResult.device_info.CPU.info}</th>${vsPre + vsCom}\
-                 <tr>${preOs + comOs}<th>${basedResult.device_info.OS}</th></tr>\
-                 <tr>${preBrowser + comBrowser}<th>${basedResult.device_info.Browser}</th></tr>`;
+      ${preComCpu + preCpu + comCpu}<th>${basedResult.device_info.CPU.info}</th>${ComVsPre + basedVsPre + basedVsCom}\
+      <tr>${preComOs + preOs + comOs}<th>${basedResult.device_info.OS}</th></tr>\
+      <tr>${preComBrowser + preBrowser + comBrowser}<th>${basedResult.device_info.Browser}</th></tr>`;
   return tableHeader;
 }
 
@@ -88,41 +96,53 @@ function drawRoundsResult(basedResult, competitorResult) {
   return resultCol;
 }
 
-function drawResultTable(basedResult, preResult, competitorResult, hasPreResult) {
+function drawResultTable(basedResult, preResult, competitorResult, preComResult, hasPreResult) {
   let summaryCol = "";
-  let resultTable = "<table>" + drawTableHeader("details", basedResult, preResult, competitorResult);
+  let resultTable = "<table>" + drawTableHeader("details", basedResult, preResult, competitorResult, preComResult);
 
   for (const key of Object.keys(basedResult.test_result)) {
     const basedValue = basedResult.test_result[key];
     // Get info from preResult
-    let preValue = "", preCol = "", vsPreCol = "";
+    let preValue = "", preCol = "", basedVsPreCol = "";
     if (preResult !== "") {
       preValue = preResult.test_result[key];
       preCol = `<td>${preValue}</td>`;
-      vsPreCol = drawCompareResult(basedValue, preValue);
+      basedVsPreCol = drawCompareResult(basedValue, preValue);
       if (basedResult.workload === "WebXPRT3" && key !== "Total Score") {
-        vsPreCol = drawCompareResult(preValue, basedValue);
+        basedVsPreCol = drawCompareResult(preValue, basedValue);
       }
     }
     // Get info from competitorResult
-    let competitorCol = "", vsCompetitorCol = "", competitorValue = "";
+    let competitorCol = "", basedVsComCol = "", competitorValue = "";
+    let preComValue = "", preComCol = "", comVsPreComCol = "";
     if (competitorResult !== "") {
       competitorValue = competitorResult.test_result[key];
-      vsCompetitorCol = drawCompareResult(basedValue, competitorValue);
+      basedVsComCol = drawCompareResult(basedValue, competitorValue);
       if (basedResult.workload === "WebXPRT3" && key !== "Total Score") {
-        vsCompetitorCol = drawCompareResult(competitorValue, basedValue);
+        basedVsComCol = drawCompareResult(competitorValue, basedValue);
       }
       competitorCol = `<td>${competitorValue}</td>`;
+      // Get info from preComResult
+      if (preComResult !== "") {
+        preComValue = preComResult.test_result[key];
+        preComCol = `<td>${preComValue}</td>`;
+        comVsPreComCol = drawCompareResult(competitorValue, preComValue);
+        if (basedResult.workload === "WebXPRT3" && key !== "Total Score") {
+          comVsPreComCol = drawCompareResult(preComValue, competitorValue);
+        }
+      }
     }
     // Draw resultTable
-    resultTable += `<tr><td>${key}</td>${preCol + competitorCol}<td>${basedValue}</td>${vsPreCol + vsCompetitorCol}</tr>`;
+    let otherCols = `${preComCol + preCol + competitorCol}<td>${basedValue}</td>${comVsPreComCol + basedVsPreCol + basedVsComCol}</tr>`;
+    resultTable += `<tr><td>${key}</td>${otherCols}`;
     // Draw summaryCol
     if (key == "Total Score") {
       if (preResult === "" && hasPreResult) {
+        preComCol = "<td>-</td>";
         preCol = "<td>-</td>";
-        vsPreCol = "<td>-</td>";
+        basedVsPreCol = "<td>-</td>";
       }
-      summaryCol = `<tr><td>${basedResult.workload}</td>${preCol + competitorCol}<td>${basedValue}</td>${vsPreCol + vsCompetitorCol}</tr>`;
+      summaryCol = `<tr><td>${basedResult.workload}</td>${otherCols}`;
     }
   }
 
@@ -192,7 +212,7 @@ async function findCompetitorResult(resultPath) {
     const rawComparedData = await fsPromises.readFile(amdPath, 'utf-8');
     const amdResult = JSON.parse(rawComparedData);
     console.log("Competitor result: ", amdResult);
-    return Promise.resolve(amdResult);
+    return Promise.resolve({path: amdPath, result: amdResult});
   }
 }
 
@@ -282,15 +302,19 @@ async function genTestReport(resultPaths) {
     // Draw result table
     // Find previous test result
     const preResult = await findPreTestResult(resultPath);
+    let preComResult = "";
     // Try to find competitor test result only when based test result is running on Intel
-    if (basedResult.device_info.CPU.mfr === "Intel")
+    if (basedResult.device_info.CPU.mfr === "Intel") {
       // Find competitor test result
-      competitorResult = await findCompetitorResult(resultPath);
+      const competitor = await findCompetitorResult(resultPath);
+      competitorResult = competitor.result;
+      preComResult = await findPreTestResult(competitor.path);
+    }
     if (!flag) {
-      summaryTable += drawTableHeader("summary", basedResult, preResult, competitorResult);
+      summaryTable += drawTableHeader("summary", basedResult, preResult, competitorResult, preComResult);
       roundsTable += drawRoundsHeader(basedResult, competitorResult);
     }
-    const resultTable = drawResultTable(basedResult, preResult, competitorResult, hasPreResult);
+    const resultTable = drawResultTable(basedResult, preResult, competitorResult, preComResult, hasPreResult);
     resultTables += `${resultTable.all}<br>`;
     summaryTable += resultTable.summaryCol;
     roundsTable += drawRoundsResult(basedResult, competitorResult);
@@ -325,10 +349,10 @@ async function genTestReport(resultPaths) {
 // // Used for debug
 // (async function() {
 // const workload =  {
-//     "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200618193506_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-//     "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200618203935_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-//     "Unity3D": path.join(__dirname, "../results/Windows/Unity3D/20200618212254_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json"),
-//     "JetStream2": path.join(__dirname, "../results/Windows/JetStream2/20200618221801_Intel-CFL-i9-9900K_Chrome-Canary-85.0.4176.0.json")
+//     "Speedometer2": path.join(__dirname, "../results/Windows/Speedometer2/20200624203507_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json"),
+//     "WebXPRT3": path.join(__dirname, "../results/Windows/WebXPRT3/20200624213919_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json"),
+//     "Unity3D": path.join(__dirname, "../results/Windows/Unity3D/20200624222019_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json"),
+//     "JetStream2": path.join(__dirname, "../results/Windows/JetStream2/20200624231527_Intel-TGL-i7-1165G7_Chrome-Canary-85.0.4181.0.json")
 // };
 // const result =await genTestReport(workload);
 // const chartImages = await chart.getChartFiles();
