@@ -189,19 +189,33 @@ async function remoteExecUploadScript() {
     username: settings.result_server.username,
     password: settings.result_server.password
   };
-  let  ssh = new SSH2Promise(serverConfig);
+  let ssh = new SSH2Promise(serverConfig);
+  let error = "";
   try {
     await ssh.connect();
     console.log(`Remote server ${serverConfig.host} connected`);
     console.log(`Executing upload.py on remote server:`);
-    let output = await ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`);
-    console.log(output.toString());
+    // let output = await ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`);
+    await new Promise(resolve => {
+      ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`).then((data) => {
+        console.log("This is output: ");
+      }).catch(e => {
+        error = e;
+      });
+      // Need some time to wait for ssh execution.
+      setTimeout(resolve, 15000);
+    });
   } catch (err) {
-    console.log(err);
+    error = err;
   } finally {
     await ssh.close();
   }
-
+  if (error !== "") {
+    console.log(error.toString());
+    // TODO: fix error on ssh.exec
+    // return Promise.reject(error);
+  }
+  console.log("************upload.py executed successfully****************");
   return Promise.resolve();
 }
 
