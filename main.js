@@ -39,8 +39,9 @@ async function main() {
     }
 
     let chartImages = [];
+    // only attach the trend charts for Canary tests
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
-    if (cpuModel.includes('Intel') && !settings.dev_mode) {
+    if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel') && !settings.dev_mode) {
       await chart.dlCharts();
       chartImages = await chart.getChartFiles();
       console.log(chartImages);
