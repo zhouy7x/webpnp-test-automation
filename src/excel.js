@@ -200,20 +200,16 @@ async function remoteExecUploadScript(file_path) {
   try {
     await ssh.connect();
     console.log(`Remote server ${serverConfig.host} connected`);
-    console.log(`Executing upload.py on remote server:`);
+    console.log(`Executing upload on remote server:`);
     const curlCommand = `curl -F files=@${file_path} -F project=1 http://webpnp.sh.intel.com/api/report/ -H 'Authorization: Token ${token}'`;
-    let data = await ssh.exec(curlCommand);
-    console.log(data.toString());
-    // let output = await ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`);
-    // await new Promise(resolve => {
-    //   ssh.exec(`/usr/bin/python3 /home/${serverConfig.username}/PHP/upload.py`).then((data) => {
-    //     console.log("This is output: ", data);
-    //   }).catch(e => {
-    //     error = e;
-    //   });
-    //   // Need some time to wait for ssh execution.
-    //   setTimeout(resolve, 15000);
-    // });
+    await new Promise(async (resolve, reject) => {
+      ssh.spawn(curlCommand).then(socket => {
+        socket.on('data', (data) => {
+          console.log(data.toString());
+          resolve();
+        });
+      }).catch(e => reject(e));
+    });
   } catch (err) {
     console.log("error occurs: ");
     console.log(error);
