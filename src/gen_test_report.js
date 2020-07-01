@@ -204,7 +204,7 @@ async function findCompetitorResult(resultPath) {
       amdDirents.push(dirent);
   }
   if (amdDirents.length == 0) {
-    return Promise.resolve("");
+    return Promise.resolve({path: "", result: ""});
   } else {
     // Find AMD test result with latest execution time
     const amdPath = path.join(path.dirname(resultPath), amdDirents.sort().reverse()[0]);
