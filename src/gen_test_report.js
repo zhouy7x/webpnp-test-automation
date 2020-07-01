@@ -308,7 +308,8 @@ async function genTestReport(resultPaths) {
       // Find competitor test result
       const competitor = await findCompetitorResult(resultPath);
       competitorResult = competitor.result;
-      preComResult = await findPreTestResult(competitor.path);
+      if(competitor.path !== "")
+        preComResult = await findPreTestResult(competitor.path);
     }
     if (!flag) {
       summaryTable += drawTableHeader("summary", basedResult, preResult, competitorResult, preComResult);
