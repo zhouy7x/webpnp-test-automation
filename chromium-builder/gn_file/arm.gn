@@ -1,8 +1,0 @@
-target_os = "linux"
-target_cpu = "arm"
-is_debug = false
-is_component_build = false
-enable_nacl = false
-symbol_level = 0
-treat_warnings_as_errors = false
-blink_symbol_level = 0

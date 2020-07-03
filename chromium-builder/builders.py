@@ -33,15 +33,23 @@ class Chromium(object):
             if rev:
                 self._update(rev)
             # build
-            out_path = self.build()
+            self.build()
         except Exception as e:
             result['status'] = 1
             result['msg'] = e
             return result
 
         # zip file
-        zip_file_output_path = self._zip(out_path, rev)
-        result['msg'] = zip_file_output_path
+        # zip_file_output_path = self._zip(out_path, rev)
+        zip_file_path = self.libpaths()
+        if not os.path.exists(zip_file_path):
+            e = "ERROR: Cannot find chrome.7z file, maybe build failed or did not add 'mini_installer' tag when ninja build chromium!"
+            print(e)
+            result['status'] = 1
+            result['msg'] = e
+        else:
+            result['msg'] = zip_file_path
+        
         return result
 
     def _update(self, rev):
@@ -55,6 +63,7 @@ class Chromium(object):
             Run(['git', 'reset' ,'--hard', rev])
             Run(['gclient', 'sync', '-D', '-j8', '-f'], env)
 
+    # deprecated
     def _zip(self, out_path, rev=None):
         name = now()
         if rev:
@@ -63,7 +72,7 @@ class Chromium(object):
         name += '.zip'
         print(name)
         dest = os.path.join(self.sourcePath, 'out_zip', name)
-        utils.Zip(src=out_path, dest=dest, exclude=self.libpaths()[0]['exclude'])
+        utils.Zip(src=out_path, dest=dest)
 
     def build(self):
         env = os.environ.copy()
@@ -80,7 +89,7 @@ class Chromium(object):
                     os.mkdir(os.path.join(self.repoPath, self.source, 'out', self.cpu))
                 Run(['copy', in_argns, out_argns], env)
                 Run(['gn', 'gen', os.path.join(self.sourcePath, 'out', self.cpu)], env)
-                Run(['ninja', '-C', os.path.join(self.sourcePath, 'out', self.cpu), 'chrome', '-j40'], env)
+                Run(['ninja', '-C', os.path.join(self.sourcePath, 'out', self.cpu), 'chrome', 'mini_installer', '-j40'], env)
             except subprocess.CalledProcessError as e:
                 print("Dirty build failed!")
                 try:
@@ -91,34 +100,31 @@ class Chromium(object):
                     Run(['mkdir', os.path.join(self.repoPath, self.source, 'out', self.cpu)])
                     Run(['copy', in_argns, out_argns], env)
                     Run(['gn', 'gen', os.path.join(self.sourcePath, 'out', self.cpu)], env)
-                    Run(['ninja', '-C', os.path.join(self.sourcePath, 'out', self.cpu), 'chrome', '-j40'], env)
+                    Run(['ninja', '-C', os.path.join(self.sourcePath, 'out', self.cpu), 'chrome', 'mini_installer', '-j40'], env)
                 except subprocess.CalledProcessError as e:
                     print("Clean build failed!")
                     raise e
+        # return os.path.join(self.sourcePath, 'out', self.cpu)
 
-        return os.path.join(self.sourcePath, 'out', self.cpu)
-
+    # deprecated
     def shell(self):
         return os.path.join(self.repoPath, self.source, 'out', self.cpu, 'chrome')
 
     def libpaths(self):
-        p = os.path.join(self.repoPath, self.source, 'out', self.cpu)
-        return [{'path': p, 'exclude': ['obj', 'gen', 'clang_x64', 'clang_x86_v8_arm', 'pyproto', 'resources']}]
+        p = os.path.join(self.repoPath, self.source, 'out', self.cpu, 'chrome.7z')
+        return p
 
 def build(engine, rev=None):
     print("build")
-    # builder = Chromium(source="chromium2\\src", repoPath="C:\\src")
-
     result = engine.updateAndBuild(rev)
     if result['status']:
         print("error msg:\n"+result['msg'])
     else:
-        print("zip file path: "+result['msg'])
+        print("7zip file path: "+result['msg'])
     return result
 
 if __name__ == "__main__":
     rev = sys.argv[1] if sys.argv[1:] else None
-    print("build")
     builder = Chromium(source="chromium2\\src", repoPath="C:\\src")
     result = build(builder, rev)
     # print(zip_file_path)

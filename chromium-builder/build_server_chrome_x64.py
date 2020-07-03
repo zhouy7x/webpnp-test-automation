@@ -9,35 +9,18 @@ import utils
 import builders
 
 LISTEN_ADDRESS = "0.0.0.0"
-LISTEN_PORT = 8794
-ERROR_LOG_FILE = "/home/user/work/logs/build_server_error.log"
+LISTEN_PORT = 8790
+ERROR_LOG_FILE = "C:\\logs\\build_server_error.log"
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind((LISTEN_ADDRESS, LISTEN_PORT))
 s.listen(5)
 
 
-def build(config):
-    utils.InitConfig(config)
+def build(rev=None):
     # Set of engines that get build.
-    KnownEngines = []
-
-    if utils.config.has_section('v8'):
-        KnownEngines.append(builders.V8())
-    if utils.config.has_section('v8-patch'):
-        KnownEngines.append(builders.V8_patch())
-    if utils.config.has_section('contentshell'):
-        KnownEngines.append(builders.ContentShell())
-    if utils.config.has_section('jerryscript'):
-        KnownEngines.append(builders.JerryScript())
-    if utils.config.has_section('iotjs'):
-        KnownEngines.append(builders.IoTjs())
-    if utils.config.has_section('headless'):
-        KnownEngines.append(builders.Headless())
-    if utils.config.has_section('headless-patch'):
-        KnownEngines.append(builders.Headless_patch())
-    # builders.build(KnownEngines, False, False)
-    builders.build(KnownEngines, False, True)
+    builder = builders.Chromium(source="chromium2\\src", repoPath="C:\\src")
+    return builders.build(builder, rev)
 
 
 def log_to_file(err_content):
@@ -52,22 +35,40 @@ while True:
     try:
         sock, addr = s.accept()
         # print "connect", addr
-        sock.send("connect ok")
+        hello = {
+            'status': 0,
+            'msg': 'connect ok'
+        }
+        sock.send(json.dumps(hello).encode())
         data = sock.recv(10240)
         if not data:
             log_to_file("client close in error with ip " + addr)
             continue
         # print "recv", data
         # time.sleep(15)
-        build(data)
-        sock.send("over")
+        recv = json.loads(data)
+        if recv['command'] == 'build':
+            commit_id = recv['content']
+            ret = build(rev=commit_id)
+        else:
+            msg = "ERROR: incorrect json format!"
+            ret = {
+                'status': -1,
+                'msg': msg
+            }
+        back_msg = json.dumps(ret)
+        sock.send(back_msg.encode())
         sock.close()
-        # print "over"
-    except Exception, e:
+        print("over")
+    except Exception as e:
         log_to_file(str(e))
         try:
-            sock.send("error")
-        except Exception, e:
-            print e
+            ret = {
+                'status': 2,
+                'msg': e
+            }
+            sock.send(json.dumps(ret).encode())
+        except Exception as e:
+            print(e)
         sock.close()
 s.close()
