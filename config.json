@@ -29,7 +29,7 @@
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
   "chrome_flags": [],
   "update_browser_sched": "0 0 0 * * Sat",
-  "intel_test_cadence": "0 0 4 * * Sat",
+  "intel_test_cadence": "0 0 5 * * Sat",
   "amd_test_cadence": "0 0 1 * * Sat",
   "enable_cron": true,
   "mail_test_report": {
