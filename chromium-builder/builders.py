@@ -25,17 +25,18 @@ class Chromium(object):
 
     def updateAndBuild(self, rev=None):
         result = {
-            'status': 0,
+            'status': 1,
             'msg': None
         }
         try:
             # update chromium repo
             if rev:
                 self._update(rev)
+                # time.sleep(10)
             # build
             self.build()
         except Exception as e:
-            result['status'] = 1
+            result['status'] = -3
             result['msg'] = e
             return result
 
@@ -45,7 +46,7 @@ class Chromium(object):
         if not os.path.exists(zip_file_path):
             e = "ERROR: Cannot find chrome.7z file, maybe build failed or did not add 'mini_installer' tag when ninja build chromium!"
             print(e)
-            result['status'] = 1
+            result['status'] = -4
             result['msg'] = e
         else:
             result['msg'] = zip_file_path
@@ -117,7 +118,7 @@ class Chromium(object):
 def build(engine, rev=None):
     print("build")
     result = engine.updateAndBuild(rev)
-    if result['status']:
+    if result['status'] != 1:
         print("error msg:\n"+result['msg'])
     else:
         print("7zip file path: "+result['msg'])

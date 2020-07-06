@@ -34,18 +34,18 @@ def log_to_file(err_content):
 while True:
     try:
         sock, addr = s.accept()
-        # print "connect", addr
+        print("connect", addr)
         hello = {
             'status': 0,
             'msg': 'connect ok'
         }
         sock.send(json.dumps(hello).encode())
-        data = sock.recv(10240)
+        data = sock.recv(10240).decode()
         if not data:
             log_to_file("client close in error with ip " + addr)
             continue
-        # print "recv", data
-        # time.sleep(15)
+        print("recv", data)
+        time.sleep(5)
         recv = json.loads(data)
         if recv['command'] == 'build':
             commit_id = recv['content']
@@ -62,9 +62,11 @@ while True:
         print("over")
     except Exception as e:
         log_to_file(str(e))
+        print('line 69')
+        print(e)
         try:
             ret = {
-                'status': 2,
+                'status': -2,
                 'msg': e
             }
             sock.send(json.dumps(ret).encode())
