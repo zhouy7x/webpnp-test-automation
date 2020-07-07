@@ -22,6 +22,8 @@ class Chromium(object):
         self.cpu = "x64"
         self.dirname = sys.path[0]
         self.sourcePath = os.path.join(self.repoPath, self.source)
+        self.out_path = "C:\\Apache24\\web\\windows-7zip-chromium"
+        self.url = "http://10.239.44.134/windows-7zip-chromium/"
 
     def updateAndBuild(self, rev=None):
         result = {
@@ -40,16 +42,15 @@ class Chromium(object):
             result['msg'] = e
             return result
 
-        # zip file
-        # zip_file_output_path = self._zip(out_path, rev)
-        zip_file_path = self.libpaths()
-        if not os.path.exists(zip_file_path):
+        # zip_file_path = self.libpaths()
+        if not os.path.exists(self.libpaths()):
             e = "ERROR: Cannot find chrome.7z file, maybe build failed or did not add 'mini_installer' tag when ninja build chromium!"
             print(e)
             result['status'] = -4
             result['msg'] = e
         else:
-            result['msg'] = zip_file_path
+            # move zip file to apache web
+            result = self._move_zip(rev)
         
         return result
 
@@ -64,16 +65,32 @@ class Chromium(object):
             Run(['git', 'reset' ,'--hard', rev])
             Run(['gclient', 'sync', '-D', '-j8', '-f'], env)
 
-    # deprecated
-    def _zip(self, out_path, rev=None):
-        name = now()
+    def _move_zip(self, rev=None):
+        name = "chromium_"
+        name += now()
         if rev:
             name += '_rev_'
             name += rev
-        name += '.zip'
+        name += '.7z'
         print(name)
-        dest = os.path.join(self.sourcePath, 'out_zip', name)
-        utils.Zip(src=out_path, dest=dest)
+        src = self.libpaths()
+        dest = os.path.join(self.out_path, name)
+        result = {
+            'status': 1,
+            'msg': None
+        }
+        try:
+            utils.move(src=src, dest=dest)
+        except Exception as e:
+            result['msg'] = e
+            result['status'] = -5
+        if os.path.exists(dest):
+            print("move to apache2 web succeed!")
+            result['msg'] = self.url + name
+        else:
+            result['status'] = -5
+            result['msg'] = "Cannot find moved 7zip file in web folder!"
+        return result
 
     def build(self):
         env = os.environ.copy()
