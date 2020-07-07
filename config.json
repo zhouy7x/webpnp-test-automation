@@ -49,5 +49,11 @@
   },
   "chrome_linux_password": "",
   "chart_page_url": "http://webpnp.sh.intel.com/",
-  "dev_mode": false
+  "dev_mode": false,
+  "chromium_builder": {
+    "build_chromium": false,
+    "commitId": "",
+    "host": "10.239.44.134",
+    "port": "8790"
+  }
 }

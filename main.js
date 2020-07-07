@@ -12,6 +12,7 @@ const chart = require('./src/chart.js');
 const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');
+const GetChromiumBuild = require('./src/get_chromium_build.js');
 
 
 const cpuModel = os.cpus()[0].model;
@@ -26,6 +27,14 @@ async function main() {
   try {
     deviceInfo = await genDeviceInfo();
 
+    if (settings["chromium_builder"]["build_chromium"]) {
+      const commitId = settings["chromium_builder"]["commitId"];
+      if (commitId !== "") {
+        await GetChromiumBuild(commitId);
+      } else {
+        throw Error("Error: commit id should be specific in config.json if you run with chromium build");
+      }
+    }
     // in dev mode, check browser version will be skipped.
     if (!settings.dev_mode) {
       await browser.checkBrowserVersion(deviceInfo);
@@ -95,4 +104,3 @@ if (settings.enable_cron) {
 } else {
   main();
 }
-
