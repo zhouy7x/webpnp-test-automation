@@ -26,13 +26,15 @@ async function main() {
   let deviceInfo = {};
   try {
     deviceInfo = await genDeviceInfo();
-
+    let subject = '[W' + weekAndDay + '] Web PnP weekly automation test report - ' + platform + ' - ' + deviceInfo.Browser;
+    // Use private chroimum build
     if (settings["chromium_builder"]["build_chromium"]) {
       const commitId = settings["chromium_builder"]["commitId"];
       if (commitId !== "") {
+        subject = `Web PnP automation test report on ${platform} with commit id: ${commitId}`
         await GetChromiumBuild(commitId);
       } else {
-        throw Error("Error: commit id should be specific in config.json if you run with chromium build");
+        throw Error("Commit id should be specific in config.json if you run with chromium build");
       }
     }
     // in dev mode, check browser version will be skipped.
@@ -62,17 +64,16 @@ async function main() {
 
     const testReports = await genTestReport(workloadResults);
 
-    let subject = '[W' + weekAndDay + '] Web PnP weekly automation test report - ' + platform + ' - ' + deviceInfo.Browser;
     console.log(subject);
     await sendMail(subject, testReports, mailType, chartImages);
   } catch (err) {
 
     console.log(err);
     let subject = '[W' + weekAndDay + ']';
-    if (! settings.dev_mode && err.message.includes('No new browser update')) {
-      subject += 'Web PnP weekly automation test cancelled on ' + platform + ' as no browser update';
-    } else { 
-      subject += 'Web PnP weekly automation test failed on ' + platform + '-' + cpuModel;
+    if (!settings.dev_mode && err.message.includes('No new browser update')) {
+      subject += 'Web PnP automation test cancelled on ' + platform + ' as no browser update';
+    } else {
+      subject += 'Web PnP automation test failed on ' + platform + '-' + cpuModel;
     }
 
     console.log(subject);
