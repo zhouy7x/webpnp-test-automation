@@ -34,7 +34,7 @@ def log_to_file(err_content):
 while True:
     try:
         sock, addr = s.accept()
-        print("connect", addr)
+        print(utils.now(), "connect", addr)
         hello = {
             'status': 0,
             'msg': 'connect ok'
