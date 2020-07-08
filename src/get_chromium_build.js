@@ -33,9 +33,9 @@ async function remoteExecChromiumBuild(commitId) {
         console.log("Waiting for build completed, this may take a very long time...");
       // Build done, this will take a very long time
       } else if (status === 1) {
-        console.log("Build successfully, you can get url from: ", msg.msg);
+        console.log("Build successfully, you can get url from: ", msg);
         client.destroy(); // kill client after server's response
-        resolve(msg.msg);
+        resolve(msg);
       } else {
         client.destroy(); // kill client after server's response
         reject("Build Error: ", msg);
