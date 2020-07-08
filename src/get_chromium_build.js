@@ -132,6 +132,7 @@ async function unzipChromium(chromiumPath) {
 * @param, {String}, commitId, used for building chromium at the head of specific commit id
 */
 async function GetChromiumBuild(commitId) {
+  console.log("Start chromium build...")
   const chromiumUrl = await remoteExecChromiumBuild(commitId);
   const chromiumPath = await dlChromiumBuild(chromiumUrl);
   const executablePath = await unzipChromium(chromiumPath);

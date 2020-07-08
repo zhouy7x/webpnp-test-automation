@@ -24,10 +24,9 @@ async function main() {
   const weekAndDay = now.week() + '.' + now.day();
 
   let deviceInfo = {};
+  let subject = "";
   try {
-    deviceInfo = await genDeviceInfo();
-    let subject = '[W' + weekAndDay + '] Web PnP weekly automation test report - ' + platform + ' - ' + deviceInfo.Browser;
-    // Use private chroimum build
+    // Use private chroimum build if chromium build is enabled
     if (settings["chromium_builder"]["build_chromium"]) {
       const commitId = settings["chromium_builder"]["commitId"];
       if (commitId !== "") {
@@ -37,6 +36,11 @@ async function main() {
         throw Error("Commit id should be specific in config.json if you run with chromium build");
       }
     }
+
+    deviceInfo = await genDeviceInfo();
+    if (subject === "")
+      subject = '[W' + weekAndDay + '] Web PnP weekly automation test report - ' + platform + ' - ' + deviceInfo.Browser;
+
     // in dev mode, check browser version will be skipped.
     if (!settings.dev_mode) {
       await browser.checkBrowserVersion(deviceInfo);
