@@ -76,20 +76,22 @@ class Chromium(object):
         name += '.7z'
         print(name)
         src = self.libpaths()
-        dest = os.path.join(self.out_path, name)
+        # if not os.path.isdir(self.out_path):
+        #     os.mkdir(self.out_path)
+        # dest = os.path.join(self.out_path, name)
         result = {
             'status': 1,
             'msg': None
         }
-        try:
-            utils.move(src=src, dest=dest)
-        except Exception as e:
-            result['msg'] = e
-            result['status'] = -5
-        if os.path.exists(dest):
+        # try:
+        #     utils.move(src=src, dest=dest)
+        # except Exception as e:
+        #     result['msg'] = e
+        #     result['status'] = -5
+        if os.path.exists(src):
             if remote:
                 try:
-                    Run(['scp', dest, self.remote_out_path])
+                    Run(['scp', src, self.remote_out_path])
                     print('scp to remote apache2 web succeed!')
                     result['msg'] = self.remote_url + name
                 except Exception as e:
