@@ -24,8 +24,10 @@ class Chromium(object):
         self.sourcePath = os.path.join(self.repoPath, self.source)
         self.out_path = "C:\\Apache24\\web\\windows-7zip-chromium"
         self.url = "http://10.239.44.134/windows-7zip-chromium/"
+        self.remote_out_path = "webnn@powerbuilder.sh.intel.com:/home/webnn/people/zhouyang/chromium_7z_files/"
+        self.remote_url = "http://powerbuilder.sh.intel.com/people/zhouyang/chromium_7z_files/"
 
-    def updateAndBuild(self, rev=None):
+    def updateAndBuild(self, rev=None, remote=True):
         result = {
             'status': 1,
             'msg': None
@@ -50,7 +52,7 @@ class Chromium(object):
             result['msg'] = e
         else:
             # move zip file to apache web
-            result = self._move_zip(rev)
+            result = self._move_zip(rev=rev, remote=remote)
         
         return result
 
@@ -65,7 +67,7 @@ class Chromium(object):
             Run(['git', 'reset' ,'--hard', rev])
             Run(['gclient', 'sync', '-D', '-j8', '-f'], env)
 
-    def _move_zip(self, rev=None):
+    def _move_zip(self, rev=None, remote=True):
         name = "chromium_"
         name += now()
         if rev:
@@ -85,8 +87,17 @@ class Chromium(object):
             result['msg'] = e
             result['status'] = -5
         if os.path.exists(dest):
-            print("move to apache2 web succeed!")
-            result['msg'] = self.url + name
+            if remote:
+                try:
+                    Run(['scp', dest, self.remote_out_path])
+                    print('scp to remote apache2 web succeed!')
+                    result['msg'] = self.remote_url + name
+                except Exception as e:
+                    result['status'] = -6
+                    result['msg'] = e
+            else:        
+                print("move to apache2 web succeed!")
+                result['msg'] = self.url + name
         else:
             result['status'] = -5
             result['msg'] = "Cannot find moved 7zip file in web folder!"
@@ -134,7 +145,7 @@ class Chromium(object):
 
 def build(engine, rev=None):
     print("build")
-    result = engine.updateAndBuild(rev)
+    result = engine.updateAndBuild(rev=rev)
     if result['status'] != 1:
         print("error msg:\n"+result['msg'])
     else:
