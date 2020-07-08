@@ -17,7 +17,7 @@ async function remoteExecChromiumBuild(commitId) {
   const message = {command: "build", content: commitId};
   const host = settings["chromium_builder"]["host"];
   const port = settings["chromium_builder"]["port"];
-  await new Promise((resolve, reject) => {
+  const chromiumUrl = await new Promise((resolve, reject) => {
     const client = new net.Socket();
     client.connect(port, host, () => {
       client.write(JSON.stringify(message));
@@ -33,9 +33,9 @@ async function remoteExecChromiumBuild(commitId) {
         console.log("Waiting for build completed, this may take a very long time...");
       // Build done, this will take a very long time
       } else if (status === 1) {
-        console.log("Build successfully, you can get url from: ", msg);
+        console.log("Build successfully, you can get url from: ", msg.msg);
         client.destroy(); // kill client after server's response
-        resolve(msg);
+        resolve(msg.msg);
       } else {
         client.destroy(); // kill client after server's response
         reject("Build Error: ", msg);
@@ -49,7 +49,6 @@ async function remoteExecChromiumBuild(commitId) {
       reject(e);
     });
   });
-  const chromiumUrl = "http://powerbuilder.sh.intel.com/people/wanming/chrome.7z";
   return Promise.resolve(chromiumUrl);
 }
 
