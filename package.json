@@ -1,7 +1,7 @@
 {
   "name": "webpnp-test-automation",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is a test automation framework based on [Playwright](https://github.com/microsoft/playwright), supports key Web workloads automation testing on Chrome browser across multiple platforms, as well as automatically generating test result and sending test report via mail.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,13 +11,15 @@
     "url": "git+https://github.com/qiuzhong/webpnp-test-automation.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Wanming Lin",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/qiuzhong/webpnp-test-automation/issues"
   },
   "homepage": "https://github.com/qiuzhong/webpnp-test-automation#readme",
   "dependencies": {
+    "7zip-min": "^1.1.2",
+    "axios": "^0.19.2",
     "excel4node": "^1.7.2",
     "moment": "^2.26.0",
     "node-cron": "^2.0.3",

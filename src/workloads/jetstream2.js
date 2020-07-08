@@ -31,7 +31,7 @@ async function runJetStream2Test(workload, flags) {
   );
   console.log("********** Running JetStream2 tests... **********");
   await page.click('//*[@id="status"]/a');
-  await page.waitForTimeout(6 * 60 * 1000);
+  await page.waitForTimeout(4 * 60 * 1000);
   await page.waitForSelector('#result-summary > div',
     {timeout: 10 * 60 * 1000}
   );
