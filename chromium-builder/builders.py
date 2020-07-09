@@ -91,7 +91,7 @@ class Chromium(object):
         if os.path.exists(src):
             if remote:
                 try:
-                    Run(['scp', src, self.remote_out_path])
+                    Run(['scp', src, self.remote_out_path+name])
                     print('scp to remote apache2 web succeed!')
                     result['msg'] = self.remote_url + name
                 except Exception as e:
