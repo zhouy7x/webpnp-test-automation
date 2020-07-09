@@ -42,7 +42,7 @@ while True:
         sock.send(json.dumps(hello).encode())
         data = sock.recv(10240).decode()
         if not data:
-            log_to_file("client close in error with ip " + addr)
+            # log_to_file("client close in error with ip " + addr)
             continue
         print("recv", data)
         time.sleep(5)
@@ -61,8 +61,8 @@ while True:
         sock.close()
         print("over")
     except Exception as e:
-        log_to_file(str(e))
-        print('line 69')
+        # log_to_file(str(e))
+        print('line 65')
         print(e)
         try:
             ret = {

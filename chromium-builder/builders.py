@@ -70,7 +70,7 @@ class Chromium(object):
     def _move_zip(self, rev=None, remote=True):
         name = "chromium_"
         name += now()
-        if rev:
+        if rev and type(rev) == str:
             name += '_rev_'
             name += rev
         name += '.7z'
@@ -149,9 +149,9 @@ def build(engine, rev=None):
     print("build")
     result = engine.updateAndBuild(rev=rev)
     if result['status'] != 1:
-        print("error msg:\n"+result['msg'])
+        print("error msg:\n"+str(result['msg']))
     else:
-        print("7zip file path: "+result['msg'])
+        print("7zip file path: "+str(result['msg']))
     return result
 
 if __name__ == "__main__":
