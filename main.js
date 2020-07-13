@@ -27,8 +27,8 @@ async function main() {
   let subject = "";
   try {
     // Use private chroimum build if chromium build is enabled
-    if (settings["chromium_builder"]["build_chromium"]) {
-      const commitId = settings["chromium_builder"]["commitId"];
+    if (settings["chromium_builder"]["enable_chromium_build"]) {
+      const commitId = settings["chromium_builder"]["commit_id"];
       if (commitId !== "") {
         subject = `Web PnP automation test report on ${platform} with commit id: ${commitId}`
         await GetChromiumBuild(commitId);
