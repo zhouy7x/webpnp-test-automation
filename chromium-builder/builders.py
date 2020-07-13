@@ -22,8 +22,8 @@ class Chromium(object):
         self.cpu = "x64"
         self.dirname = sys.path[0]
         self.sourcePath = os.path.join(self.repoPath, self.source)
-        self.out_path = "C:\\Apache24\\web\\windows-7zip-chromium"
-        self.url = "http://10.239.44.134/windows-7zip-chromium/"
+        # self.out_path = "C:\\Apache24\\web\\windows-7zip-chromium"
+        # self.url = "http://10.239.44.134/windows-7zip-chromium/"
         self.remote_out_path = "webnn@powerbuilder.sh.intel.com:/home/webnn/project/chromium-builder/"
         self.remote_url = "http://powerbuilder.sh.intel.com/project/chromium-builder/"
 
