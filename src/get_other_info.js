@@ -3,6 +3,7 @@
 const settings = require('../config.json');
 const platformBrowser = require('./browser.js');
 const { chromium } = require('playwright-chromium');
+const si = require('systeminformation');
 
 /*
 * Get information of gpu driver version and browser version
@@ -24,6 +25,11 @@ async function getOtherInfo() {
   const versionInfo = await versionElement.evaluate(element => element.innerText);
   console.log(versionInfo);
 
+  const os = await si.osInfo();
+  let osArch = os.arch === 'x64' ? '64-bit': '32-bit';
+  if (!versionInfo.includes(osArch)) {
+    return Promise.reject("Error: Arches mismatch between Chrome and test system!");
+  }
   let chromeChannel = '';
   if (versionInfo.includes('Stable')) {
     chromeChannel = 'Stable';
