@@ -62,7 +62,8 @@ async function runUnity3DTest(workload, flags) {
   });
   await page.mouse.click(startPosition.x, startPosition.y);
 
-  await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
+  // await new Promise(resolve => setTimeout(resolve, 3 * 60 * 1000));
+  await page.waitFor(3 * 60 * 1000);
   return new Promise(async (resolve, reject) => {
     // Since the Unity3D's results are painted in a canvas, we have to get result from console log
     page.on('console', async msg => {
