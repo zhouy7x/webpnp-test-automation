@@ -36,7 +36,7 @@ async function genExcelFilesAndUpload(fileInfo) {
   let excelFileName = '';
 
   for (let workload in fileInfo) {
-    let resultFilePath = fileInfo[workload]; 
+    let resultFilePath = fileInfo[workload];
 
     if (!fs.existsSync(resultFilePath)) {
       return Promise.reject(`${resultFilePath} does not exist, failed to write to Excel!`);

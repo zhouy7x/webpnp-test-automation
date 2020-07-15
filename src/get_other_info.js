@@ -27,7 +27,9 @@ async function getOtherInfo() {
 
   const os = await si.osInfo();
   let osArch = os.arch === 'x64' ? '64-bit': '32-bit';
-  if (!versionInfo.includes(osArch)) {
+  // Some device's default language is Chinese
+  let chineseOsArch = os.arch === 'x64' ? '64 位': '32 位';
+  if (!(versionInfo.includes(osArch) || versionInfo.includes(chineseOsArch))) {
     return Promise.reject("Error: Arches mismatch between Chrome and test system!");
   }
   let chromeChannel = '';
