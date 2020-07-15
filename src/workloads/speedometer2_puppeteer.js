@@ -1,6 +1,6 @@
 const settings = require('../../config.json');
 const platformBrowser = require('../browser.js');
-const chromium = require('puppeteer');
+const chromium = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 
