@@ -48,7 +48,6 @@
     "password": "000"
   },
   "chrome_linux_password": "",
-  "chart_page_url": "http://webpnp.sh.intel.com/",
   "dev_mode": false,
   "chromium_builder": {
     "enable_chromium_build": false,

@@ -30,7 +30,7 @@ async function main() {
     if (settings["chromium_builder"]["enable_chromium_build"]) {
       const commitId = settings["chromium_builder"]["commit_id"];
       if (commitId !== "") {
-        subject = `Web PnP automation test report on ${platform} with commit id: ${commitId}`
+        subject = `Web PnP automation test report on ${platform} with commit id: ${commitId}`;
         await GetChromiumBuild(commitId);
       } else {
         throw Error("Commit id should be specific in config.json if you run with chromium build");
@@ -57,7 +57,7 @@ async function main() {
     // only attach the trend charts for Canary tests
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
     if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel') && !settings.dev_mode) {
-      await chart.dlCharts();
+      await chart.dlCharts(deviceInfo);
       chartImages = await chart.getChartFiles();
       console.log(chartImages);
     }
