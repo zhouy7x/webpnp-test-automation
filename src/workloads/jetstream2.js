@@ -20,8 +20,8 @@ async function runJetStream2Test(workload, flags) {
   const browser = await chromium.launchPersistentContext(userDataDir, {
     headless: false,
     executablePath: settings.chrome_path,
+    viewport: null,
     args: args
-    // viewport: null
   });
   const page = await browser.newPage();
   console.log(`********** Going to URL: ${workload.url} **********`);
