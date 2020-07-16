@@ -25,8 +25,8 @@ async function runSpeedometer2Test(workload, flags) {
   });
   const page = await browser.newPage();
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url);
-
+  await page.goto(workload.url, { waitUntil: "networkidle" });
+  await page.waitForTimeout(5 * 1000);
   console.log("********** Running Speedometer2 tests... **********");
   await page.click('xpath=//*[@id="home"]/div/button');
   await page.waitForTimeout(2 * 60 * 1000);

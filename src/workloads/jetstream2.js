@@ -25,7 +25,8 @@ async function runJetStream2Test(workload, flags) {
   });
   const page = await browser.newPage();
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url, { waitUntil: 'load', timeout: 10000 });
+  await page.goto(workload.url, { waitUntil: "networkidle" });
+  await page.waitForTimeout(5 * 1000);
   await page.waitForSelector('//*[@id="status"]/a',
     {timeout: 5 * 60 * 1000}
   );

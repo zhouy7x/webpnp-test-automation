@@ -24,9 +24,9 @@ async function runWebXPRT3Test(workload, flags) {
     args: args
   });
   const page = await browser.newPage();
-
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url);
+  await page.goto(workload.url, { waitUntil: "networkidle" });
+  await page.waitForTimeout(5 * 1000);
 
   console.log("********** Running WebXPRT3 tests... **********");
   await page.click('xpath=//*[@id="startBtnDiv"]/div[3]/div/div/a/p');
