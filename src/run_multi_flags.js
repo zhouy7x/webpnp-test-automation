@@ -3,8 +3,6 @@
 
 const genDeviceInfo = require('./get_device_info.js');
 const runTest = require('./run.js');
-const genTestReport = require('./gen_test_report.js');
-const sendMail = require('./send_mail.js');
 const settings = require('../config.json');
 const os = require('os');
 const fs = require('fs');
@@ -22,22 +20,9 @@ const platform = runTest.getPlatformName();
 async function runWithFlag(deviceInfo) {
   let workloadResults = {};
   try {
-
     workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     console.log(JSON.stringify(workloadResults, null, 4));
-
-    // let mailType = 'test_report';
-    // const testReports = await genTestReport(workloadResults);
-
-    // let subject = 'Flags testing report - ' + platform + ' - ' + deviceInfo.Browser;
-    // await sendMail(subject, testReports, mailType);
   } catch (err) {
-    // console.log(err);
-    // let subject = 'Web PnP weekly automation test failed on ' + platform + '-' + cpuModel;
-
-
-    // console.log(subject);
-    // await sendMail(subject, err, 'failure_notice');
   }
   return Promise.resolve(workloadResults);
 }
@@ -58,14 +43,73 @@ async function updateConfig(flag) {
 (async function main() {
 
   const flagList = [
-    ['--new-canvas-2d-api'],
-    ['--enable-features=UseSkiaRenderer']
+    [ '--ignore-gpu-blacklist' ],
+    [ '--disable-accelerated-2d-canvas' ],
+    [ '--enable-hardware-overlays' ],
+    [ '--enable-hardware-overlays=single-fullscreen' ],
+    [ '--enable-hardware-overlays=single-fullscreen,single-on-top' ],
+    [ '--enable-hardware-overlays=single-fullscreen,single-on-top,underlay' ],
+    [ '--enable-nacl' ],
+    [ '--enable-experimental-webassembly-features' ],
+    [ '--enable-features=WebAssemblyBaseline' ],
+    [ '--disable-features=WebAssemblyBaseline' ],
+    [ '--enable-features=WebAssemblyLazyCompilation' ],
+    [ '--disable-features=WebAssemblyLazyCompilation' ],
+    [ '--enable-features=WebAssemblySimd' ],
+    [ '--disable-features=WebAssemblySimd' ],
+    [ '--enable-features=WebAssemblyThreads' ],
+    [ '--disable-features=WebAssemblyThreads' ],
+    [ '--enable-features=WebAssemblyTiering' ],
+    [ '--disable-features=WebAssemblyTiering' ],
+    [ '--enable-features=WebAssemblyBaseline, WebAssemblyTiering' ],
+    [ '--enable-features=V8VmFuture' ],
+    [ '--disable-features=V8VmFuture' ],
+    [ '--enable-gpu-rasterization' ],
+    [ '--disable-gpu-rasterization' ],
+    [ '--enable-oop-rasterization' ],
+    [ '--disable-oop-rasterization' ],
+    [ '--enable-features=OopRasterizationDDL' ],
+    [ '--disable-features=OopRasterizationDDL' ],
+    [ '--enable-experimental-web-platform-features' ],
+    [ '--enable-webgl-draft-extensions' ],
+    [ '--enable-zero-copy' ],
+    [ '--disable-zero-copy' ],
+    [ '--enable-features=Vulkan' ],
+    [ '--disable-features=Vulkan' ],
+    [ '--force-ui-direction=ltr' ],
+    [ '--force-ui-direction=rtl' ],
+    [ '--enable-features=DelayAsyncScriptExecution' ],
+    [ '--disable-features=DelayAsyncScriptExecution' ],
+    [ '--enable-features=LazyImageLoading' ],
+    [ '--disable-features=LazyImageLoading' ],
+    [ '--enable-features=LazyFrameLoading' ],
+    [ '--disable-features=LazyFrameLoading' ],
+    [ '--use-angle=gl' ],
+    [ '--use-angle=d3d11' ],
+    [ '--use-angle=d3d9' ],
+    [ '--use-angle=d3d11on12' ],
+    [ '--enable-features=UseSkiaRenderer' ],
+    [ '--disable-features=UseSkiaRenderer' ],
+    [ '--enable-features=DecodeJpeg420ImagesToYUV' ],
+    [ '--disable-features=DecodeJpeg420ImagesToYUV' ],
+    [ '--enable-features=DecodeLossyWebPImagesToYUV' ],
+    [ '--disable-features=DecodeLossyWebPImagesToYUV' ],
+    [ '--enable-features=TextureLayerSkipWaitForActivation' ],
+    [ '--disable-features=TextureLayerSkipWaitForActivation' ],
+    [ '--enable-features=TextfieldFocusOnTapUp' ],
+    [ '--disable-features=TextfieldFocusOnTapUp' ],
+    [ '--new-canvas-2d-api' ]
   ];
   let workloadFiles = [];
   const deviceInfo = await genDeviceInfo();
+
+  // Baseline test result
+  let workloadFile = await runWithFlag(deviceInfo);
+  workloadFiles.push(workloadFile);
+  // Loop testing flags
   for (let flag of flagList) {
     await updateConfig(flag);
-    const workloadFile = await runWithFlag(deviceInfo);
+    workloadFile = await runWithFlag(deviceInfo);
     workloadFiles.push(workloadFile);
   }
   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);

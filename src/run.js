@@ -36,8 +36,8 @@ async function runWorkload(workload, executor) {
   let originScoresArray = [];
   let scoresArray = [];
   const flags = settings.chrome_flags;
-  // if workload === unity3D, warm up
-  if (workload.name === "Unity3D") {
+  // if workload === unity3D || Speedometer2, warm up
+  if (workload.name === "Unity3D" || workload.name === "Speedometer2") {
     await executor(workload, flags);
   }
   for (let i = 0; i < workload.run_times; i++) {
