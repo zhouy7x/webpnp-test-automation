@@ -43,6 +43,7 @@ async function updateConfig(flag) {
 (async function main() {
 
   const flagList = [
+    [],
     [ '--ignore-gpu-blacklist' ],
     [ '--disable-accelerated-2d-canvas' ],
     [ '--enable-hardware-overlays' ],
@@ -103,16 +104,20 @@ async function updateConfig(flag) {
   let workloadFiles = [];
   const deviceInfo = await genDeviceInfo();
 
-  // Baseline test result
-  let workloadFile = await runWithFlag(deviceInfo);
-  workloadFiles.push(workloadFile);
   // Loop testing flags
-  for (let flag of flagList) {
-    await updateConfig(flag);
+  for (let i = 1; i <= flagList.length; i++) {
+    if (i > 1)
+      await updateConfig(flagList[i]);
     workloadFile = await runWithFlag(deviceInfo);
     workloadFiles.push(workloadFile);
+    // if ( i%5 == 0 ) {
+    //   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+    //   workloadFiles = [];
+    // }
   }
-  await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+  // if (workloadFiles.length !== 0) {
+  //   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+  // }
   return Promise.resolve();
 
 })();
