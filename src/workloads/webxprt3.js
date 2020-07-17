@@ -30,7 +30,7 @@ async function runWebXPRT3Test(workload, flags) {
 
   console.log("********** Running WebXPRT3 tests... **********");
   await page.click('xpath=//*[@id="startBtnDiv"]/div[3]/div/div/a/p');
-  await page.waitForTimeout(9 * 60 * 1000);
+  await page.waitForTimeout(8.5 * 60 * 1000);
   await page.waitForSelector('xpath=//*[@id="medScnRes"]/div[2]/div[2]/div[1]/a/h4',
     {timeout: 10 * 60 * 1000}
   );

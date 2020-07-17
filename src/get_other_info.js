@@ -37,10 +37,11 @@ async function getOtherInfo() {
     chromeChannel = 'Stable';
   } else if (versionInfo.includes('canary')) {
     chromeChannel = 'Canary';
-  } else if (versionInfo.includes('Developer') || versionInfo.includes('dev')) {
-    chromeChannel = 'Dev';
-  } else {
+  // } else if (versionInfo.includes('Developer') || versionInfo.includes('dev')) {
+  } else if (versionInfo.includes('beta')) {
     chromeChannel = 'Beta';
+  } else {
+    chromeChannel = 'Dev'
   }
   const chromeVersion = chromeChannel + '-' + versionInfo.split(' ')[0];
   console.log('********** Chrome version **********');

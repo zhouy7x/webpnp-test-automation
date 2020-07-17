@@ -33,7 +33,7 @@ async function runWebXPRT3Test(workload, flags) {
   await page.evaluate(() => {
     document.querySelector('#startBtnDiv > div.medium-12.show-for-medium-only.medium-centered.columns > div > div > a').click();
   });
-  await page.waitFor(9 * 60 * 1000);
+  await page.waitFor(8.5 * 60 * 1000);
   await page.waitForSelector('#medScnRes > div:nth-child(2) > div:nth-child(1) > div > div > p.text-center.results-score-text',
     {timeout: 10 * 60 * 1000}
   );
