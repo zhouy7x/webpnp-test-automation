@@ -26,6 +26,8 @@ async function main() {
   let deviceInfo = {};
   let subject = "";
   try {
+    // Clean up chart folder
+    await chart.cleanUpChartFiles();
     // Use private chroimum build if chromium build is enabled
     if (settings["chromium_builder"]["enable_chromium_build"]) {
       const commitId = settings["chromium_builder"]["commit_id"];
@@ -54,9 +56,9 @@ async function main() {
     }
 
     let chartImages = [];
-    // only attach the trend charts for Canary tests
+    // only attach the trend charts for regular weekly testing
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
-    if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel') && !settings.dev_mode) {
+    if (cpuModel.includes('Intel') && !settings.dev_mode) {
       await chart.dlCharts(deviceInfo);
       chartImages = await chart.getChartFiles();
       console.log(chartImages);
@@ -86,10 +88,8 @@ async function main() {
 
   // Update the browser version in config.json if necessary
   await browser.updateConfig(deviceInfo, settings);
+  await chart.cleanUpChartFiles();
 
-  if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel')) {
-    await chart.cleanUpChartFiles();
-  }
 }
 
 
