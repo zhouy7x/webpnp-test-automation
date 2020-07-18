@@ -29,8 +29,24 @@ async function runWebXPRT3Test(workload, flags) {
   await page.waitForTimeout(5 * 1000);
 
   console.log("********** Running WebXPRT3 tests... **********");
-  await page.click('xpath=//*[@id="startBtnDiv"]/div[3]/div/div/a/p');
-  await page.waitForTimeout(8.5 * 60 * 1000);
+  // A quick rule-of-thumb is to count the number of await's or then's
+  // happening in your code and if there's more than one then you're
+  // probably better off running the code inside a page.evaluate call.
+  // The reason here is that all async actions have to go back-and-forth
+  // between Node's runtime and the browser's, which means all the JSON
+  // serialization and deserializiation. While it's not a huge amount of
+  // parsing (since it's all backed by WebSockets) it still is taking up
+  // time that could better be spent doing something else.
+  await page.evaluate(() => {
+    const startButton = document.querySelector('#startBtnDiv > div.medium-12.show-for-medium-only.medium-centered.columns > div > div > a > p');
+    startButton.click();
+    // A navigation happens after click, execution context was destroyed
+    // So later code will throw error
+    // await new Promise(resolve => setTimeout(resolve, 8.5 * 60 * 1000));
+  });
+  // await page.click('xpath=//*[@id="startBtnDiv"]/div[3]/div/div/a/p');
+  // await page.waitForTimeout(8.5 * 60 * 1000);
+  await new Promise(resolve => setTimeout(resolve, 8.5 * 60 * 1000));
   await page.waitForSelector('xpath=//*[@id="medScnRes"]/div[2]/div[2]/div[1]/a/h4',
     {timeout: 10 * 60 * 1000}
   );

@@ -28,8 +28,21 @@ async function runSpeedometer2Test(workload, flags) {
   await page.goto(workload.url, { waitUntil: "networkidle" });
   await page.waitForTimeout(5 * 1000);
   console.log("********** Running Speedometer2 tests... **********");
-  await page.click('xpath=//*[@id="home"]/div/button');
-  await page.waitForTimeout(2 * 60 * 1000);
+  // A quick rule-of-thumb is to count the number of await's or then's
+  // happening in your code and if there's more than one then you're
+  // probably better off running the code inside a page.evaluate call.
+  // The reason here is that all async actions have to go back-and-forth
+  // between Node's runtime and the browser's, which means all the JSON
+  // serialization and deserializiation. While it's not a huge amount of
+  // parsing (since it's all backed by WebSockets) it still is taking up
+  // time that could better be spent doing something else.
+  await page.evaluate(async () => {
+    const startButton = document.querySelector('#home > div > button');
+    startButton.click();
+    await new Promise(resolve => setTimeout(resolve, 2 * 60 * 1000));
+  });
+  // await page.click('xpath=//*[@id="home"]/div/button');
+  // await page.waitForTimeout(2 * 60 * 1000);
   await page.waitForSelector('xpath=//*[@id="summarized-results"]/div[4]/button[2]',
     {timeout: 5 * 60 * 1000}
   );

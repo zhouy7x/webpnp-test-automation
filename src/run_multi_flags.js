@@ -105,10 +105,10 @@ async function updateConfig(flag) {
   const deviceInfo = await genDeviceInfo();
 
   // Loop testing flags
-  for (let i = 1; i <= flagList.length; i++) {
-    if (i > 1)
+  for (let i = 0; i < flagList.length; i++) {
+    if (i > 0)
       await updateConfig(flagList[i]);
-    workloadFile = await runWithFlag(deviceInfo);
+    let workloadFile = await runWithFlag(deviceInfo);
     workloadFiles.push(workloadFile);
     // if ( i%5 == 0 ) {
     //   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
