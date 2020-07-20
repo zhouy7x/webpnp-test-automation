@@ -46,12 +46,12 @@ async function runUnity3DTest(workload, flags) {
   let logList = [];
   let exactKeys = [];
   console.log("********** Running Unity3D tests... **********");
-  await page.goto(workload.url, { waitUntil: 'load', timeout: 5000 });
+  await page.goto(workload.url, { waitUntil: 'networkidle0' });
 
   // Enable fullscreen and click Start button
-  await page.waitForSelector('#overlay > button:nth-child(2)', { timeout: 10000 });
+  await page.waitForSelector('#overlay > button:nth-child(2)', { timeout: 30 * 1000 });
   const enableFullscreen = await page.$('#overlay > button:nth-child(2)');
-  await new Promise(resolve => setTimeout(resolve, 3000));
+  await page.waitFor(3 * 1000);
   await enableFullscreen.click();
   const canvasContainer = await page.$('#gameContainer');
   const startPosition = await canvasContainer.evaluate(container => {
