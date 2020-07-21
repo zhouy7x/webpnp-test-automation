@@ -168,8 +168,37 @@ async function syncRemoteDirectory(workload, action) {
     await sftp.end();
   }
 
-  return Promise.resolve();
+  return Promise.resolve(testResultsDir);
 }
+
+/*
+* Note: Specific for regular weekly testing
+* Search test results for one round of regular testing
+* with keywords of 'cpu', 'browser channel',
+* and 'browser version'.
+* Return: {Object}, like {
+*   'Speedometer2': 'path/to/json/file',
+*   ...
+* }
+*/
+async function searchTestResults(cpu, browserChannel, browserVersion) {
+  let results = {};
+  for (let workload of settings.workloads) {
+    let testResultDir = await syncRemoteDirectory(workload, 'pull');
+    let resultFiles = await fs.promises.readdir(testResultDir);
+    let result = [];
+    for (let file of resultFiles) {
+      if (file.includes(cpu) && file.includes(browserChannel) && file.includes(browserVersion))
+        result.push(file);
+    }
+    if(result.length !== 1)
+      return Promise.reject(`Error: unexpected result length: ${result.length}`);
+    results[workload.name] = path.join(testResultDir, result[0]);
+  }
+  console.log(results);
+  return Promise.resolve(results);
+}
+
 
 /*
 * Run all the workloads defined in ../config.json and 
@@ -199,5 +228,6 @@ async function genWorkloadsResults(deviceInfo) {
 
 module.exports = {
   getPlatformName: getPlatformName,
+  searchTestResults: searchTestResults,
   genWorkloadsResults: genWorkloadsResults
 }

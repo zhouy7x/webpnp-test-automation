@@ -48,6 +48,7 @@ async function main() {
       await browser.checkBrowserVersion(deviceInfo);
     }
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
+    // const workloadResults = await runTest.searchTestResults("Intel-TGL", "Canary", "86.0.4207");
     console.log(JSON.stringify(workloadResults, null, 4));
     if (!settings.dev_mode) {
       // Upload each testing result as excel to webpnp test reporter

@@ -80,7 +80,7 @@ async function getChartFiles() {
     fs.mkdirSync(chartsDir);
   let chartFiles = await fs.promises.readdir(chartsDir);
 
-  if (chartFiles.length === 0)  {
+  if (chartFiles.length === 0) {
     return Promise.resolve([]);
   } else {
     return Promise.resolve(chartFiles);
