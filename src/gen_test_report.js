@@ -70,7 +70,7 @@ function drawRoundsResult(basedResult, competitorResult) {
   let basedResultCol = `<tr><td>${basedResult.workload}</td>`;
   let comResultCol = "";
   const selectedStyle = "style='background-color: #4CAF50;'";
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < basedResult.test_rounds.length; i++) {
     if (basedResult.test_rounds[i] !== undefined) {
       if (i === basedResult.selected_round)
         basedResultCol += `<td ${selectedStyle}>${basedResult.test_rounds[i].scores["Total Score"]}</td>`;
@@ -81,7 +81,7 @@ function drawRoundsResult(basedResult, competitorResult) {
     }
   }
   if (competitorResult !== "") {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < competitorResult.test_rounds.length; i++) {
       if (competitorResult.test_rounds[i] !== undefined) {
         if (i === competitorResult.selected_round)
           comResultCol += `<td ${selectedStyle}>${competitorResult.test_rounds[i].scores["Total Score"]}</td>`;
