@@ -1,15 +1,20 @@
 ## Usage
-- Go to this folder
+- This is an auto-build win64 chromium script.
 - Prepare
   1. Install python3
-  2. Make dir "C:\logs"
-  `mkdir C:\logs`
+    a. download from https://www.python.org/downloads/windows/
+    b. double click to install
+  2. Create log dir "C:\logs"
+    `mkdir C:\logs`
+  3. Setup windows build chromium environment to "C:\src\chromium2\". Follow official build guide:
+    https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md
+
 - Server run
   1. Start cmd, then choose 2 or 3.
   2. run in background:
-  `start /b python3 build_server_chrome_x64.py > C:\logs\build_chrome_log.txt 2>&1`
-  3. run in current termial:
-  `python3 build_server_chrome_x64.py`
+    `start /b python3 build_server_chrome_x64.py > C:\logs\build_chrome_log.txt 2>&1`
+  3. run in current terminal:
+    `python3 build_server_chrome_x64.py`
 
 - Client run
   1. Use socket
