@@ -1,14 +1,16 @@
-## Usage
-- This is an auto-build win64 chromium script.
-- Prepare
-  1. Install python3
-    a. download from https://www.python.org/downloads/windows/
-    b. double click to install
-  2. Create log dir "C:\logs"
-    `mkdir C:\logs`
-  3. Setup windows build chromium environment to "C:\src\chromium2\". Follow official build guide:
-    https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md
+## Introduction
+This a build server for automatically building chromium binary for Windows 10 x64 system.
 
+## Setup
+- Install python3
+  a. download from https://www.python.org/downloads/windows/
+  b. double click to install
+- Create log dir "C:\logs"
+  `mkdir C:\logs`
+- Setup windows build chromium environment to "C:\src\chromium2\". Follow official build guide:
+  https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md
+
+## Usage
 - Server run
   1. Start cmd, then choose 2 or 3.
   2. run in background:
