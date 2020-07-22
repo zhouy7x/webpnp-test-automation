@@ -199,7 +199,15 @@ async function searchTestResults(cpu, browserChannel, browserVersion) {
   return Promise.resolve(results);
 }
 
-
+/**
+ * Pull all workloads results from host server
+ */
+async function pullRemoteResults() {
+  for (let workload of settings.workloads) {
+    await syncRemoteDirectory(workload, 'pull');
+  }
+  return Promise.resolve();
+}
 /*
 * Run all the workloads defined in ../config.json and 
 * generate the results to the ../results directory.
@@ -229,5 +237,6 @@ async function genWorkloadsResults(deviceInfo) {
 module.exports = {
   getPlatformName: getPlatformName,
   searchTestResults: searchTestResults,
+  pullRemoteResults: pullRemoteResults,
   genWorkloadsResults: genWorkloadsResults
 }

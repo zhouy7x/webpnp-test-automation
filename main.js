@@ -69,6 +69,8 @@ async function main() {
     if (cpuModel.includes('AMD') || settings.dev_mode)
       mailType = 'dev_notice'; // If the test is on AMD platform, then send dev team.
 
+    // Pull all results to make sure getting latest results of competitors
+    await runTest.pullRemoteResults();
     const testReports = await genTestReport(workloadResults);
 
     console.log(subject);
