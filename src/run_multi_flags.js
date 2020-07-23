@@ -43,70 +43,27 @@ async function updateConfig(flag) {
 (async function main() {
 
   const flagList = [
-    [],
-    [ '--ignore-gpu-blacklist' ],
-    [ '--disable-accelerated-2d-canvas' ],
-    [ '--enable-hardware-overlays' ],
-    [ '--enable-hardware-overlays=single-fullscreen' ],
-    [ '--enable-hardware-overlays=single-fullscreen,single-on-top' ],
-    [ '--enable-hardware-overlays=single-fullscreen,single-on-top,underlay' ],
-    [ '--enable-nacl' ],
-    [ '--enable-experimental-webassembly-features' ],
-    [ '--enable-features=WebAssemblyBaseline' ],
-    [ '--disable-features=WebAssemblyBaseline' ],
-    [ '--enable-features=WebAssemblyLazyCompilation' ],
-    [ '--disable-features=WebAssemblyLazyCompilation' ],
-    [ '--enable-features=WebAssemblySimd' ],
-    [ '--disable-features=WebAssemblySimd' ],
-    [ '--enable-features=WebAssemblyThreads' ],
-    [ '--disable-features=WebAssemblyThreads' ],
-    [ '--enable-features=WebAssemblyTiering' ],
-    [ '--disable-features=WebAssemblyTiering' ],
-    [ '--enable-features=WebAssemblyBaseline, WebAssemblyTiering' ],
-    [ '--enable-features=V8VmFuture' ],
-    [ '--disable-features=V8VmFuture' ],
-    [ '--enable-gpu-rasterization' ],
-    [ '--disable-gpu-rasterization' ],
-    [ '--enable-oop-rasterization' ],
-    [ '--disable-oop-rasterization' ],
-    [ '--enable-features=OopRasterizationDDL' ],
-    [ '--disable-features=OopRasterizationDDL' ],
-    [ '--enable-experimental-web-platform-features' ],
-    [ '--enable-webgl-draft-extensions' ],
-    [ '--enable-zero-copy' ],
-    [ '--disable-zero-copy' ],
-    [ '--enable-features=Vulkan' ],
-    [ '--disable-features=Vulkan' ],
-    [ '--force-ui-direction=ltr' ],
-    [ '--force-ui-direction=rtl' ],
-    [ '--enable-features=DelayAsyncScriptExecution' ],
-    [ '--disable-features=DelayAsyncScriptExecution' ],
-    [ '--enable-features=LazyImageLoading' ],
-    [ '--disable-features=LazyImageLoading' ],
-    [ '--enable-features=LazyFrameLoading' ],
-    [ '--disable-features=LazyFrameLoading' ],
-    [ '--use-angle=gl' ],
-    [ '--use-angle=d3d11' ],
-    [ '--use-angle=d3d9' ],
-    [ '--use-angle=d3d11on12' ],
-    [ '--enable-features=UseSkiaRenderer' ],
-    [ '--disable-features=UseSkiaRenderer' ],
-    [ '--enable-features=DecodeJpeg420ImagesToYUV' ],
-    [ '--disable-features=DecodeJpeg420ImagesToYUV' ],
-    [ '--enable-features=DecodeLossyWebPImagesToYUV' ],
-    [ '--disable-features=DecodeLossyWebPImagesToYUV' ],
-    [ '--enable-features=TextureLayerSkipWaitForActivation' ],
-    [ '--disable-features=TextureLayerSkipWaitForActivation' ],
-    [ '--enable-features=TextfieldFocusOnTapUp' ],
-    [ '--disable-features=TextfieldFocusOnTapUp' ],
-    [ '--new-canvas-2d-api' ]
+    ["--ui-disable-partial-swap"],
+    ["--disable-javascript-harmony-shipping"],
+    ["--javascript-harmony"],
+    ["--data-reduction-proxy-experiment=alt1"],
+    ["--data-reduction-proxy-experiment=alt3"],
+    ["--data-reduction-proxy-experiment=alt10"],
+    ["--enable-features=ResourceLoadingHints"],
+    ["--blink-settings=disallowFetchForDocWrittenScriptsInMainFrame=true"],
+    ["--blink-settings=disallowFetchForDocWrittenScriptsInMainFrame=false"],
+    ["--enable-features=MidiManagerWinrt"],
+    ["--enable-features=HeavyAdIntervention"],
+    ["--enable-features=HeavyAdPrivacyMitigations"],
+    ["--enable-experimental-cookie-features"],
+    ["--enable-features=TranslateSubFrames"]
   ];
   let workloadFiles = [];
 
   // Loop testing flags
   for (let i = 0; i < flagList.length; i++) {
     const deviceInfo = await genDeviceInfo();
-    if (i > 0)
+    // if (i > 0)
       await updateConfig(flagList[i]);
     let workloadFile = await runWithFlag(deviceInfo);
     workloadFiles.push(workloadFile);
