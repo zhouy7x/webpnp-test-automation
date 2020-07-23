@@ -102,10 +102,10 @@ async function updateConfig(flag) {
     [ '--new-canvas-2d-api' ]
   ];
   let workloadFiles = [];
-  const deviceInfo = await genDeviceInfo();
 
   // Loop testing flags
   for (let i = 0; i < flagList.length; i++) {
+    const deviceInfo = await genDeviceInfo();
     if (i > 0)
       await updateConfig(flagList[i]);
     let workloadFile = await runWithFlag(deviceInfo);
