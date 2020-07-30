@@ -30,8 +30,14 @@ async function dlCharts(deviceInfo) {
   const page = await context.newPage();
   const chart_page_host = "http://webpnp.sh.intel.com/pnp/chart/";
   // Intel CPU
-  const cpu1 = deviceInfo['CPU']['info'];
+  let cpu1 = deviceInfo['CPU']['info'];
   const cpu1_brand = deviceInfo['CPU']['brand'];
+
+  // Temporary Change: Currently TGL existing two reports
+  if (cpu1.includes('i7-1185G7')) {
+    const cpu3 = "TGL i7-1165G7";
+    cpu1 = `${cpu1}&cpu=${cpu3}`;
+  }
 
   // Competitor's CPU info
   const cpu2 = cpuList["Intel"][cpu1_brand]["competitor"];
