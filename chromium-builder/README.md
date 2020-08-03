@@ -9,6 +9,16 @@ This a build server for automatically building chromium binary for Windows 10 x6
   `mkdir C:\logs`
 - Setup windows build chromium environment to "C:\src\chromium2\". Follow official build guide:
   https://chromium.googlesource.com/chromium/src/+/master/docs/windows_build_instructions.md
+- Setup passwordless SSH login to "webnn@powerbuilder.sh.intel.com"
+  `
+  ssh-keygen -t rsa
+  cd %HOMEPATH%\.ssh
+  scp id_rsa.pub webnn@powerbuilder.sh.intel.com:~/.ssh
+  ssh webnn@powerbuilder.sh.intel.com  # password: Intel@2019
+  cd ~/.ssh
+  echo id_rsa.pub >> authorized_keys
+  exit
+  `
 
 ## Usage
 - Server run
