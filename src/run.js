@@ -4,6 +4,7 @@ const fsPromises = fs.promises;
 const path = require('path');
 const runSpeedometer2 = require('./workloads/speedometer2.js');
 const runWebXPRT3 = require('./workloads/webxprt3.js');
+const runWebXPRT2015 = require('./workloads/webxprt2015.js');
 const runUnity3D = require('./workloads/unity3d.js');
 const runJetStream2 = require('./workloads/jetstream2.js');
 const settings = require('../config.json');
@@ -222,6 +223,7 @@ async function genWorkloadsResults(deviceInfo) {
   let executors = {
     'Speedometer2': runSpeedometer2,
     'WebXPRT3': runWebXPRT3,
+    'WebXPRT2015': runWebXPRT2015,
     'Unity3D': runUnity3D,
     'JetStream2': runJetStream2
   };
