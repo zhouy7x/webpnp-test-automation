@@ -3,8 +3,6 @@
 
 const genDeviceInfo = require('./get_device_info.js');
 const runTest = require('./run.js');
-const genTestReport = require('./gen_test_report.js');
-const sendMail = require('./send_mail.js');
 const settings = require('../config.json');
 const os = require('os');
 const fs = require('fs');
@@ -22,22 +20,9 @@ const platform = runTest.getPlatformName();
 async function runWithFlag(deviceInfo) {
   let workloadResults = {};
   try {
-
     workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     console.log(JSON.stringify(workloadResults, null, 4));
-
-    // let mailType = 'test_report';
-    // const testReports = await genTestReport(workloadResults);
-
-    // let subject = 'Flags testing report - ' + platform + ' - ' + deviceInfo.Browser;
-    // await sendMail(subject, testReports, mailType);
   } catch (err) {
-    // console.log(err);
-    // let subject = 'Web PnP weekly automation test failed on ' + platform + '-' + cpuModel;
-
-
-    // console.log(subject);
-    // await sendMail(subject, err, 'failure_notice');
   }
   return Promise.resolve(workloadResults);
 }
@@ -58,17 +43,43 @@ async function updateConfig(flag) {
 (async function main() {
 
   const flagList = [
-    ['--new-canvas-2d-api'],
-    ['--enable-features=UseSkiaRenderer']
+    ["--enable-oop-rasterization", "--enable-gpu-rasterization"],
+    ["--disable-oop-rasterization", "--disable-gpu-rasterization"],
+    ["--enable-features=OopRasterizationDDL", "--enable-oop-rasterization"],
+    ["--disable-features=OopRasterizationDDL", "--disable-oop-rasterization"],
+    ["--disable-accelerated-2d-canvas"],
+    ["--disable-features=WebAssemblyBaseline"],
+    ["--disable-features=WebAssemblyTiering"],
+    ["--enable-features=V8VmFuture"],
+    ["--disable-gpu-rasterization"],
+    ["--enable-zero-copy"],
+    ["--enable-features=Vulkan"],
+    ["--disable-features=Vulkan"],
+    ["--use-angle=gl"],
+    ["--use-angle=d3d11"],
+    ["--use-angle=d3d9"],
+    ["--use-angle=d3d11on12"],
+    ["--disable-features=UseSkiaRenderer"],
+    ["--enable-features=DecodeJpeg420ImagesToYUV"],
+    ["--disable-features=TextureLayerSkipWaitForActivation"]
   ];
   let workloadFiles = [];
-  const deviceInfo = await genDeviceInfo();
-  for (let flag of flagList) {
-    await updateConfig(flag);
-    const workloadFile = await runWithFlag(deviceInfo);
+
+  // Loop testing flags
+  for (let i = 0; i < flagList.length; i++) {
+    const deviceInfo = await genDeviceInfo();
+    // if (i > 0)
+      await updateConfig(flagList[i]);
+    let workloadFile = await runWithFlag(deviceInfo);
     workloadFiles.push(workloadFile);
+    // if ( i%5 == 0 ) {
+    //   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+    //   workloadFiles = [];
+    // }
   }
-  await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+  // if (workloadFiles.length !== 0) {
+  //   await genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+  // }
   return Promise.resolve();
 
 })();

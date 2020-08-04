@@ -3,13 +3,13 @@
     {
       "name": "Speedometer2",
       "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/Speedometer2-226694-jstc/",
-      "run_times": 5,
+      "run_times": 3,
       "sleep_interval": 300
     },
     {
       "name": "WebXPRT3",
       "url": "http://test-server2.sh.intel.com/webxprt3/",
-      "run_times": 5,
+      "run_times": 3,
       "sleep_interval": 300
     },
     {
@@ -21,7 +21,7 @@
     {
       "name": "JetStream2",
       "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/JetStream2-JSTC/",
-      "run_times": 5,
+      "run_times": 3,
       "sleep_interval": 300
     }
   ],
@@ -31,7 +31,7 @@
   "update_browser_sched": "0 0 0 * * Sat",
   "intel_test_cadence": "0 0 5 * * Sat",
   "amd_test_cadence": "0 0 1 * * Sat",
-  "enable_cron": true,
+  "enable_cron": false,
   "mail_test_report": {
     "from": "wanming.lin@intel.com",
     "to": ["chromiumopt@intel.com", "shiyu.zhang@intel.com", "qi.zhang@intel.com",
@@ -48,12 +48,11 @@
     "password": "000"
   },
   "chrome_linux_password": "",
-  "chart_page_url": "http://webpnp.sh.intel.com/",
   "dev_mode": false,
   "chromium_builder": {
-    "build_chromium": false,
-    "commitId": "",
-    "host": "10.239.44.134",
+    "enable_chromium_build": false,
+    "commit_id": "",
+    "host": "10.239.61.100",
     "port": "8790"
   }
 }

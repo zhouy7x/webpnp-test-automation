@@ -1,6 +1,6 @@
 const settings = require('../../config.json');
 const platformBrowser = require('../browser.js');
-const { chromium } = require('playwright-chromium');
+const chromium = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,35 +17,22 @@ async function runJetStream2Test(workload, flags) {
     fs.rmdirSync(userDataDir, { recursive: true });
   }
   fs.mkdirSync(userDataDir);
-  const browser = await chromium.launchPersistentContext(userDataDir, {
+  const browser = await chromium.launch({
     headless: false,
     executablePath: settings.chrome_path,
-    viewport: null,
-    args: args
+    userDataDir: userDataDir,
+    args: args,
+    defaultViewport: null
   });
   const page = await browser.newPage();
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url, { waitUntil: "networkidle" });
-  await page.waitForTimeout(5 * 1000);
-  await page.waitForSelector('//*[@id="status"]/a',
+  await page.goto(workload.url, { waitUntil: 'load', timeout: 10000 });
+  await page.waitForSelector('#status > a',
     {timeout: 5 * 60 * 1000}
   );
   console.log("********** Running JetStream2 tests... **********");
-  // A quick rule-of-thumb is to count the number of await's or then's
-  // happening in your code and if there's more than one then you're
-  // probably better off running the code inside a page.evaluate call.
-  // The reason here is that all async actions have to go back-and-forth
-  // between Node's runtime and the browser's, which means all the JSON
-  // serialization and deserializiation. While it's not a huge amount of
-  // parsing (since it's all backed by WebSockets) it still is taking up
-  // time that could better be spent doing something else.
-  await page.evaluate(async () => {
-    const startButton = document.querySelector('#status > a');
-    startButton.click();
-    await new Promise(resolve => setTimeout(resolve, 4 * 60 * 1000));
-  });
-  // await page.click('//*[@id="status"]/a');
-  // await page.waitForTimeout(4 * 60 * 1000);
+  await page.click('#status > a');
+  await page.waitFor(4 * 60 * 1000);
   await page.waitForSelector('#result-summary > div',
     {timeout: 10 * 60 * 1000}
   );
@@ -91,3 +78,9 @@ async function runJetStream2Test(workload, flags) {
 }
 
 module.exports = runJetStream2Test;
+
+workload = {
+  "name": "JetStream2",
+  "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/JetStream2-JSTC/"
+}
+runJetStream2Test(workload);

@@ -4,10 +4,11 @@ const fsPromises = fs.promises;
 const path = require('path');
 const xl = require('excel4node');
 const settings = require('../config.json');
+const platformBrowser = require('./browser.js');
 
 
 async function getAllFlags() {
-  configChromePath(settings);
+  platformBrowser.configChromePath(settings);
   let nameList = [];
   let flagList = [];
   let descList = [];

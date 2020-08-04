@@ -1,6 +1,6 @@
 const settings = require('../../config.json');
 const platformBrowser = require('../browser.js');
-const { chromium } = require('playwright-chromium');
+const chromium = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,40 +17,35 @@ async function runSpeedometer2Test(workload, flags) {
     fs.rmdirSync(userDataDir, { recursive: true });
   }
   fs.mkdirSync(userDataDir);
-  const browser = await chromium.launchPersistentContext(userDataDir, {
+  const browser = await chromium.launch({
     headless: false,
     executablePath: settings.chrome_path,
-    viewport: null,
-    args: args
+    userDataDir: userDataDir,
+    args: args,
+    defaultViewport: null
   });
   const page = await browser.newPage();
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url, { waitUntil: "networkidle" });
-  await page.waitForTimeout(5 * 1000);
-  console.log("********** Running Speedometer2 tests... **********");
-  // A quick rule-of-thumb is to count the number of await's or then's
-  // happening in your code and if there's more than one then you're
-  // probably better off running the code inside a page.evaluate call.
-  // The reason here is that all async actions have to go back-and-forth
-  // between Node's runtime and the browser's, which means all the JSON
-  // serialization and deserializiation. While it's not a huge amount of
-  // parsing (since it's all backed by WebSockets) it still is taking up
-  // time that could better be spent doing something else.
-  await page.evaluate(async () => {
-    const startButton = document.querySelector('#home > div > button');
-    startButton.click();
-    await new Promise(resolve => setTimeout(resolve, 2 * 60 * 1000));
-  });
-  // await page.click('xpath=//*[@id="home"]/div/button');
-  // await page.waitForTimeout(2 * 60 * 1000);
-  await page.waitForSelector('xpath=//*[@id="summarized-results"]/div[4]/button[2]',
-    {timeout: 5 * 60 * 1000}
-  );
+  await page.goto(workload.url, { waitUntil: 'load', timeout: 5000 });
 
-  console.log("********** Running Speedometer2 tests completed **********");
+  console.log("********** Running Speedometer2 tests... **********");
+  await page.click('#home > div > button');
+  // Speedometer2 has already defined result elements before testing started, so
+  // we have no way to wait for result elements, just wait for 2 mins to wait for test done
+  await page.waitFor(2 * 60 * 1000);
+
   let scores = {};
   const scoreElement = await page.$('#result-number');
-  const score = await scoreElement.evaluate(element => element.textContent);
+  let score = await scoreElement.evaluate(element => element.textContent);
+  if (score === "") {
+    // Test not done yet, continue to wait...
+    await page.waitFor(3 * 60 * 1000);
+    score = await scoreElement.evaluate(element => element.textContent);
+    if (score === "")
+      return Promise.reject("Error: Speedometer2 takes too long time to run...")
+  }
+  score = await scoreElement.evaluate(element => element.textContent);
+  console.log("********** Running Speedometer2 tests completed **********");
   console.log('********** Speedometer tests score: **********');
   console.log(`********** ${score}  **********`);
   scores['Total Score'] = score;
@@ -78,5 +73,8 @@ async function runSpeedometer2Test(workload, flags) {
   });
 }
 
-
-module.exports = runSpeedometer2Test;
+const workload = {
+  "name": "Speedometer2",
+  "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/Speedometer2-226694-jstc/"
+}
+module.exports = runSpeedometer2Test(workload);

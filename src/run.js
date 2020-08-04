@@ -36,8 +36,8 @@ async function runWorkload(workload, executor) {
   let originScoresArray = [];
   let scoresArray = [];
   const flags = settings.chrome_flags;
-  // if workload === unity3D, warm up
-  if (workload.name === "Unity3D") {
+  // if workload === unity3D || Speedometer2, warm up
+  if (workload.name === "Unity3D" || workload.name === "Speedometer2") {
     await executor(workload, flags);
   }
   for (let i = 0; i < workload.run_times; i++) {
@@ -168,9 +168,46 @@ async function syncRemoteDirectory(workload, action) {
     await sftp.end();
   }
 
-  return Promise.resolve();
+  return Promise.resolve(testResultsDir);
 }
 
+/*
+* Note: Specific for regular weekly testing
+* Search test results for one round of regular testing
+* with keywords of 'cpu', 'browser channel',
+* and 'browser version'.
+* Return: {Object}, like {
+*   'Speedometer2': 'path/to/json/file',
+*   ...
+* }
+*/
+async function searchTestResults(cpu, browserChannel, browserVersion) {
+  let results = {};
+  for (let workload of settings.workloads) {
+    let testResultDir = await syncRemoteDirectory(workload, 'pull');
+    let resultFiles = await fs.promises.readdir(testResultDir);
+    let result = [];
+    for (let file of resultFiles) {
+      if (file.includes(cpu) && file.includes(browserChannel) && file.includes(browserVersion))
+        result.push(file);
+    }
+    if(result.length !== 1)
+      return Promise.reject(`Error: unexpected result length: ${result.length}`);
+    results[workload.name] = path.join(testResultDir, result[0]);
+  }
+  console.log(results);
+  return Promise.resolve(results);
+}
+
+/**
+ * Pull all workloads results from host server
+ */
+async function pullRemoteResults() {
+  for (let workload of settings.workloads) {
+    await syncRemoteDirectory(workload, 'pull');
+  }
+  return Promise.resolve();
+}
 /*
 * Run all the workloads defined in ../config.json and 
 * generate the results to the ../results directory.
@@ -199,5 +236,7 @@ async function genWorkloadsResults(deviceInfo) {
 
 module.exports = {
   getPlatformName: getPlatformName,
+  searchTestResults: searchTestResults,
+  pullRemoteResults: pullRemoteResults,
   genWorkloadsResults: genWorkloadsResults
 }

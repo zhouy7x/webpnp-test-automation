@@ -26,11 +26,13 @@ async function main() {
   let deviceInfo = {};
   let subject = "";
   try {
+    // Clean up chart folder
+    await chart.cleanUpChartFiles();
     // Use private chroimum build if chromium build is enabled
-    if (settings["chromium_builder"]["build_chromium"]) {
-      const commitId = settings["chromium_builder"]["commitId"];
+    if (settings["chromium_builder"]["enable_chromium_build"]) {
+      const commitId = settings["chromium_builder"]["commit_id"];
       if (commitId !== "") {
-        subject = `Web PnP automation test report on ${platform} with commit id: ${commitId}`
+        subject = `Web PnP auto test report on ${platform} with commit id: ${commitId}`;
         await GetChromiumBuild(commitId);
       } else {
         throw Error("Commit id should be specific in config.json if you run with chromium build");
@@ -39,13 +41,14 @@ async function main() {
 
     deviceInfo = await genDeviceInfo();
     if (subject === "")
-      subject = '[W' + weekAndDay + '] Web PnP weekly automation test report - ' + platform + ' - ' + deviceInfo.Browser;
-
+      subject = '[W' + weekAndDay + '] Web PnP auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
+    console.log("Subject: ", subject);
     // in dev mode, check browser version will be skipped.
     if (!settings.dev_mode) {
       await browser.checkBrowserVersion(deviceInfo);
     }
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
+    // const workloadResults = await runTest.searchTestResults("Intel-TGL", "Canary", "86.0.4207");
     console.log(JSON.stringify(workloadResults, null, 4));
     if (!settings.dev_mode) {
       // Upload each testing result as excel to webpnp test reporter
@@ -54,10 +57,10 @@ async function main() {
     }
 
     let chartImages = [];
-    // only attach the trend charts for Canary tests
+    // only attach the trend charts for regular weekly testing
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
-    if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel') && !settings.dev_mode) {
-      await chart.dlCharts();
+    if (cpuModel.includes('Intel') && !settings.dev_mode) {
+      await chart.dlCharts(deviceInfo);
       chartImages = await chart.getChartFiles();
       console.log(chartImages);
     }
@@ -66,6 +69,8 @@ async function main() {
     if (cpuModel.includes('AMD') || settings.dev_mode)
       mailType = 'dev_notice'; // If the test is on AMD platform, then send dev team.
 
+    // Pull all results to make sure getting latest results of competitors
+    await runTest.pullRemoteResults();
     const testReports = await genTestReport(workloadResults);
 
     console.log(subject);
@@ -75,9 +80,9 @@ async function main() {
     console.log(err);
     let subject = '[W' + weekAndDay + ']';
     if (!settings.dev_mode && err.message.includes('No new browser update')) {
-      subject += 'Web PnP automation test cancelled on ' + platform + ' as no browser update';
+      subject += 'Auto test cancelled on ' + platform + ' as no browser update';
     } else {
-      subject += 'Web PnP automation test failed on ' + platform + '-' + cpuModel;
+      subject += 'Auto test failed on ' + platform + '-' + cpuModel;
     }
 
     console.log(subject);
@@ -86,10 +91,8 @@ async function main() {
 
   // Update the browser version in config.json if necessary
   await browser.updateConfig(deviceInfo, settings);
+  await chart.cleanUpChartFiles();
 
-  if (deviceInfo.Browser.includes('Canary') && cpuModel.includes('Intel')) {
-    await chart.cleanUpChartFiles();
-  }
 }
 
 

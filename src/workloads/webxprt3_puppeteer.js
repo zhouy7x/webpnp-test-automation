@@ -1,6 +1,6 @@
 const settings = require('../../config.json');
 const platformBrowser = require('../browser.js');
-const { chromium } = require('playwright-chromium');
+const chromium  = require('puppeteer-core');
 const path = require('path');
 const fs = require('fs');
 
@@ -17,37 +17,24 @@ async function runWebXPRT3Test(workload, flags) {
     fs.rmdirSync(userDataDir, { recursive: true });
   }
   fs.mkdirSync(userDataDir);
-  const browser = await chromium.launchPersistentContext(userDataDir, {
+  const browser = await chromium.launch({
     headless: false,
     executablePath: settings.chrome_path,
-    viewport: null,
-    args: args
+    userDataDir: userDataDir,
+    args: args,
+    defaultViewport: null
   });
   const page = await browser.newPage();
+
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url, { waitUntil: "networkidle" });
-  await page.waitForTimeout(5 * 1000);
+  await page.goto(workload.url, { waitUntil: 'load', timeout: 5000 });
 
   console.log("********** Running WebXPRT3 tests... **********");
-  // A quick rule-of-thumb is to count the number of await's or then's
-  // happening in your code and if there's more than one then you're
-  // probably better off running the code inside a page.evaluate call.
-  // The reason here is that all async actions have to go back-and-forth
-  // between Node's runtime and the browser's, which means all the JSON
-  // serialization and deserializiation. While it's not a huge amount of
-  // parsing (since it's all backed by WebSockets) it still is taking up
-  // time that could better be spent doing something else.
   await page.evaluate(() => {
-    const startButton = document.querySelector('#startBtnDiv > div.medium-12.show-for-medium-only.medium-centered.columns > div > div > a > p');
-    startButton.click();
-    // A navigation happens after click, execution context was destroyed
-    // So later code will throw error
-    // await new Promise(resolve => setTimeout(resolve, 8.5 * 60 * 1000));
+    document.querySelector('#startBtnDiv > div.medium-12.show-for-medium-only.medium-centered.columns > div > div > a').click();
   });
-  // await page.click('xpath=//*[@id="startBtnDiv"]/div[3]/div/div/a/p');
-  // await page.waitForTimeout(8.5 * 60 * 1000);
-  await new Promise(resolve => setTimeout(resolve, 8.5 * 60 * 1000));
-  await page.waitForSelector('xpath=//*[@id="medScnRes"]/div[2]/div[2]/div[1]/a/h4',
+  await page.waitFor(8.5 * 60 * 1000);
+  await page.waitForSelector('#medScnRes > div:nth-child(2) > div:nth-child(1) > div > div > p.text-center.results-score-text',
     {timeout: 10 * 60 * 1000}
   );
 
@@ -93,5 +80,10 @@ async function runWebXPRT3Test(workload, flags) {
     scores: scores
   });
 }
+const workload = {
+  "name": "WebXPRT3",
+  "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/webxprt3/"
+};
 
+runWebXPRT3Test(workload);
 module.exports = runWebXPRT3Test;
