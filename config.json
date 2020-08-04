@@ -13,6 +13,12 @@
       "sleep_interval": 300
     },
     {
+      "name": "WebXPRT2015",
+      "url": "http://test-server2.sh.intel.com/webxprt2015v1998/",
+      "run_times": 3,
+      "sleep_interval": 300
+    },
+    {
       "name": "Unity3D",
       "url": "http://user-awfy.sh.intel.com:8080/awfy/ARCworkloads/benchmarks2018/",
       "run_times": 3,
@@ -40,7 +46,7 @@
   },
   "mail_dev_notice": {
     "from": "wanming.lin@intel.com",
-    "to":["wanming.lin@intel.com"]
+    "to":["yangx.a.zhou@intel.com"]
   },
   "result_server": {
     "host": "10.239.115.92",
@@ -48,7 +54,7 @@
     "password": "000"
   },
   "chrome_linux_password": "",
-  "dev_mode": false,
+  "dev_mode": true,
   "chromium_builder": {
     "enable_chromium_build": false,
     "commit_id": "",
