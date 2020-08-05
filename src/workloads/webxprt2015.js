@@ -25,7 +25,8 @@ async function runWebXPRT2015Test(workload, flags) {
   const page = await browser.newPage();
 
   console.log(`********** Going to URL: ${workload.url} **********`);
-  await page.goto(workload.url);
+  await page.goto(workload.url, { waitUntil: "networkidle" });
+  await page.waitForTimeout(5 * 1000);
 
   console.log("********** Running WebXPRT2015 tests... **********");
   // A quick rule-of-thumb is to count the number of await's or then's
