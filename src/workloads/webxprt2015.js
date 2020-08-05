@@ -28,8 +28,24 @@ async function runWebXPRT2015Test(workload, flags) {
   await page.goto(workload.url);
 
   console.log("********** Running WebXPRT2015 tests... **********");
-  await page.click('#imgRunAll');
-  await page.waitForTimeout(6 * 60 * 1000);
+  // A quick rule-of-thumb is to count the number of await's or then's
+  // happening in your code and if there's more than one then you're
+  // probably better off running the code inside a page.evaluate call.
+  // The reason here is that all async actions have to go back-and-forth
+  // between Node's runtime and the browser's, which means all the JSON
+  // serialization and deserializiation. While it's not a huge amount of
+  // parsing (since it's all backed by WebSockets) it still is taking up
+  // time that could better be spent doing something else.
+  await page.evaluate(() => {
+    const startButton = document.querySelector('#imgRunAll');
+    startButton.click();
+    // A navigation happens after click, execution context was destroyed
+    // So later code will throw error
+    // await new Promise(resolve => setTimeout(resolve, 8.5 * 60 * 1000));
+  });
+  // await page.click('#imgRunAll');
+  // await page.waitForTimeout(8.5 * 60 * 1000);
+  await new Promise(resolve => setTimeout(resolve, 8.5 * 60 * 1000));
   await page.waitForSelector('#page > div:nth-child(2) > fieldset > div',
     {timeout: 10 * 60 * 1000}
   );
