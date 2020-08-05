@@ -31,7 +31,7 @@
       "sleep_interval": 300
     }
   ],
-  "win_chrome_path": "HOME_DIR\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe",
+  "win_chrome_path": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
   "chrome_flags": [],
   "update_browser_sched": "0 0 0 * * Sat",
@@ -46,7 +46,7 @@
   },
   "mail_dev_notice": {
     "from": "wanming.lin@intel.com",
-    "to":["yangx.a.zhou@intel.com"]
+    "to":["yangx.a.zhou@intel.com", "yihuix.xie@intel.com"]
   },
   "result_server": {
     "host": "10.239.115.92",
