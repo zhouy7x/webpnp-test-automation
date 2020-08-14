@@ -35,7 +35,7 @@
   "mail_test_report": {
     "from": "wanming.lin@intel.com",
     "to": ["chromiumopt@intel.com", "shiyu.zhang@intel.com", "qi.zhang@intel.com",
-          "jonathan.ding@intel.com", "canx.cao@intel.com",
+          "jonathan.ding@intel.com", "canx.cao@intel.com", "daoming.qiu@intel.com",
           "yihuix.xie@intel.com", "yangx.a.zhou@intel.com"]
   },
   "mail_dev_notice": {
