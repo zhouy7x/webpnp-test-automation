@@ -79,6 +79,8 @@ async function getDeviceInfo() {
           resolve("Balanced");
         } else if (stdout.includes("High performance")) {
           resolve("High performance");
+        } else if (stdout.includes("Power saver")) {
+          resolve("Power saver");
         } else {
           reject("error: Unknown power plan");
         }
