@@ -95,7 +95,7 @@ async function getDeviceInfo() {
     "Memory": memSize,
     "Hardware": hwInfo,
     "Screen Resolution": screenRes,
-    "Power Plan": powerPlan,
+    "Power Governor": powerPlan,
     "OS": platform,
     "OS Version": osData.release,
     "Browser": "Chrome-" + chromeVersion
