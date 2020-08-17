@@ -68,18 +68,19 @@ async function getDeviceInfo() {
 
   if (platform.includes("Windows")) {
     powerPlan = await new Promise((resolve, reject) => {
-      exec("powercfg /GetActiveScheme", (error, stdout, stderr) => {
+      // `cmd /c chcp 65001>nul &&`: this command sets cmd's console output to utf-8) at start of my exec command
+      exec("cmd /c chcp 65001>nul && powercfg /GetActiveScheme", (error, stdout, stderr) => {
         if (error) {
           reject(`error: ${error.message}`);
         }
         if (stderr) {
           reject(`stderr: ${stderr}`);
         }
-        if (stdout.includes("Balanced")) {
+        if (stdout.includes("Balanced") || stdout.includes("平衡")) {
           resolve("Balanced");
-        } else if (stdout.includes("High performance")) {
+        } else if (stdout.includes("High performance") || stdout.includes("高性能")) {
           resolve("High performance");
-        } else if (stdout.includes("Power saver")) {
+        } else if (stdout.includes("Power saver") || stdout.includes("省电")) {
           resolve("Power saver");
         } else {
           reject("error: Unknown power plan");
