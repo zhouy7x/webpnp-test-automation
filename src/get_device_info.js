@@ -3,6 +3,7 @@
 const si = require('systeminformation');
 const getOtherInfo = require('./get_other_info.js');
 const cpuList = require('../cpu_list.json');
+const { exec } = require("child_process");
 
 /*
 * Get information of device info
@@ -11,6 +12,7 @@ async function getDeviceInfo() {
   const otherInfo = await getOtherInfo();
   const chromeVersion = otherInfo.chromeVersion;
   const gpuDriverVersion = otherInfo.gpuDriverVersion;
+  const screenRes = otherInfo.ScreenResolution;
 
   console.log('********** Get all device info **********');
   // Get GPU info
@@ -62,6 +64,27 @@ async function getDeviceInfo() {
   else
     platform = osData.distro;
 
+  let powerPlan = "N/A";
+
+  if (platform.includes("Windows")) {
+    powerPlan = await new Promise((resolve, reject) => {
+      exec("powercfg /GetActiveScheme", (error, stdout, stderr) => {
+        if (error) {
+          reject(`error: ${error.message}`);
+        }
+        if (stderr) {
+          reject(`stderr: ${stderr}`);
+        }
+        if (stdout.includes("Balanced")) {
+          resolve("Balanced");
+        } else if (stdout.includes("High performance")) {
+          resolve("High performance");
+        } else {
+          reject("error: Unknown power plan");
+        }
+      });
+    });
+  }
   // Generate device info object
   const deviceInfo = {
     "CPU": cpuInfo,
@@ -69,6 +92,8 @@ async function getDeviceInfo() {
     "GPU Driver Version": gpuDriverVersion,
     "Memory": memSize,
     "Hardware": hwInfo,
+    "Screen Resolution": screenRes,
+    "Power Plan": powerPlan,
     "OS": platform,
     "OS Version": osData.release,
     "Browser": "Chrome-" + chromeVersion
