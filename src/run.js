@@ -39,6 +39,7 @@ async function runWorkload(workload, executor) {
   // if workload === unity3D || Speedometer2, warm up
   if (workload.name === "Unity3D" || workload.name === "Speedometer2") {
     await executor(workload, flags);
+    await new Promise(resolve => setTimeout(resolve, 100 * 1000)); // sleep for a while before next time running
   }
   for (let i = 0; i < workload.run_times; i++) {
     let thisScore = await executor(workload, flags);
