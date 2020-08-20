@@ -3,6 +3,7 @@
 const si = require('systeminformation');
 const getOtherInfo = require('./get_other_info.js');
 const cpuList = require('../cpu_list.json');
+const { exec } = require("child_process");
 
 /*
 * Get information of device info
@@ -11,6 +12,7 @@ async function getDeviceInfo() {
   const otherInfo = await getOtherInfo();
   const chromeVersion = otherInfo.chromeVersion;
   const gpuDriverVersion = otherInfo.gpuDriverVersion;
+  const screenRes = otherInfo.ScreenResolution;
 
   console.log('********** Get all device info **********');
   // Get GPU info
@@ -62,6 +64,30 @@ async function getDeviceInfo() {
   else
     platform = osData.distro;
 
+  let powerPlan = "N/A";
+
+  if (platform.includes("Windows")) {
+    powerPlan = await new Promise((resolve, reject) => {
+      // `cmd /c chcp 65001>nul &&`: this command sets cmd's console output to utf-8) at start of my exec command
+      exec("cmd /c chcp 65001>nul && powercfg /GetActiveScheme", (error, stdout, stderr) => {
+        if (error) {
+          reject(`error: ${error.message}`);
+        }
+        if (stderr) {
+          reject(`stderr: ${stderr}`);
+        }
+        if (stdout.includes("Balanced") || stdout.includes("平衡")) {
+          resolve("Balanced");
+        } else if (stdout.includes("High performance") || stdout.includes("高性能")) {
+          resolve("High performance");
+        } else if (stdout.includes("Power saver") || stdout.includes("省电")) {
+          resolve("Power saver");
+        } else {
+          reject("error: Unknown power plan");
+        }
+      });
+    });
+  }
   // Generate device info object
   const deviceInfo = {
     "CPU": cpuInfo,
@@ -69,6 +95,8 @@ async function getDeviceInfo() {
     "GPU Driver Version": gpuDriverVersion,
     "Memory": memSize,
     "Hardware": hwInfo,
+    "Screen Resolution": screenRes,
+    "Power Governor": powerPlan,
     "OS": platform,
     "OS Version": osData.release,
     "Browser": "Chrome-" + chromeVersion

@@ -87,6 +87,7 @@ async function writeDataToExcel(pathname, fileInfos) {
       if (secondOnce) {
         let flagName = workloadResult['chrome_flags'];
         // Add header name for each chrome flag
+        console.log(flagName)
         ws.cell(1, 3 + i).string(flagName.join(","));
       }
       for (let key in workloadResult['test_result']) {
@@ -152,3 +153,50 @@ async function writeDataToExcel(pathname, fileInfos) {
 module.exports = {
   genMultiFlagsResultsToExcel: genMultiFlagsResultsToExcel
 };
+
+async function main(deviceInfo, workloadName) {
+
+  const resultDir = path.join(process.cwd(), "9900k-p1-rerun2", "Windows", workloadName);
+  let resultFiles = await fs.promises.readdir(resultDir);
+  let workloadFiles = [];
+  for (let file of resultFiles) {
+    let workload = {};
+    workload[workloadName] = path.join(resultDir, file);
+    workloadFiles.push(workload);
+  }
+  genMultiFlagsResultsToExcel(workloadFiles, deviceInfo);
+}
+
+deviceInfo = {
+  "CPU": {
+      "mfr": "AMD",
+      "info": "Zen 2 Ryzen 9 3900X",
+      "codename": "Zen 2",
+      "brand": "Ryzen 9 3900X"
+  },
+  "GPU": "GeForce RTX 2080 Ti",
+  "GPU Driver Version": "26.21.14.4223",
+  "Memory": "16G",
+  "Hardware": "System manufacturer System Version",
+  "OS": "Windows 10",
+  "OS Version": "10.0.18363",
+  "Browser": "Chrome-Canary-86.0.4204.0"
+};
+
+const IntelDeviceInfo = {
+  "CPU": {
+      "mfr": "Intel",
+      "info": "CFL i9-9900K",
+      "codename": "CFL",
+      "brand": "i9-9900K"
+  },
+  "GPU": "GeForce RTX 2080 Ti",
+  "GPU Driver Version": "26.21.14.4223",
+  "Memory": "16G",
+  "Hardware": "System manufacturer System Version",
+  "OS": "Windows 10",
+  "OS Version": "10.0.18363",
+  "Browser": "Chrome-Canary-86.0.4204.0"
+};
+
+main(IntelDeviceInfo, "WebXPRT3");

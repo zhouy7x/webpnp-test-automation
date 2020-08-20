@@ -3,6 +3,8 @@
 const settings = require('../config.json');
 const platformBrowser = require('./browser.js');
 const { chromium } = require('playwright-chromium');
+const path = require('path');
+const fs = require('fs');
 const si = require('systeminformation');
 
 /*
@@ -12,9 +14,15 @@ async function getOtherInfo() {
   console.log('********** Get other device info **********');
   platformBrowser.configChromePath(settings);
   const chromePath = settings.chrome_path;
-  const browser = await chromium.launch({
-      headless: false,
-      executablePath: chromePath,
+  const userDataDir = path.join(process.cwd(), 'userData');
+  if (!fs.existsSync(userDataDir)) {
+    fs.mkdirSync(userDataDir);
+  }
+  const browser = await chromium.launchPersistentContext(userDataDir, {
+    headless: false,
+    executablePath: chromePath,
+    viewport: null,
+    args: ["--start-maximized"]
   });
 
   const page = await browser.newPage();
@@ -63,11 +71,19 @@ async function getOtherInfo() {
     console.error("Error: Cann't get GPU Driver version!");
   console.log(gpuDriverVersion);
 
+  const screenRes = await page.evaluate(() => {
+    const screenResX = window.screen.width;
+    const screenResY = window.screen.height;
+    const scaleRatio = window.devicePixelRatio;
+    return screenResX * scaleRatio + " x " + screenResY * scaleRatio;
+  });
+
   await browser.close(); // A bug here, await close() method will hang and never been resolved.
 
   const otherInfo = {
     "chromeVersion": chromeVersion,
-    "gpuDriverVersion": gpuDriverVersion
+    "gpuDriverVersion": gpuDriverVersion,
+    "ScreenResolution": screenRes
   };
 
  return Promise.resolve(otherInfo);
