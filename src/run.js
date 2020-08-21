@@ -39,14 +39,12 @@ async function runWorkload(workload, executor) {
   // if workload === unity3D || Speedometer2, warm up
   if (workload.name === "Unity3D" || workload.name === "Speedometer2") {
     await executor(workload, flags);
-    await new Promise(resolve => setTimeout(resolve, 100 * 1000)); // sleep for a while before next time running
   }
   for (let i = 0; i < workload.run_times; i++) {
+    await new Promise(resolve => setTimeout(resolve, workload.sleep_interval * 1000)); // sleep for a while before next time running
     let thisScore = await executor(workload, flags);
     originScoresArray.push(thisScore);
     scoresArray.push(thisScore);
-
-    await new Promise(resolve => setTimeout(resolve, workload.sleep_interval * 1000)); // sleep for a while before next time running
   }
 
   sortScores(scoresArray, 'scores', 'Total Score');
