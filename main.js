@@ -13,6 +13,7 @@ const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');
 const GetChromiumBuild = require('./src/get_chromium_build.js');
+const run = require('./src/run.js');
 
 
 const cpuModel = os.cpus()[0].model;
@@ -26,8 +27,6 @@ async function main() {
   let deviceInfo = {};
   let subject = "";
   try {
-    // Clean up chart folder
-    await chart.cleanUpChartFiles();
     // Use private chroimum build if chromium build is enabled
     if (settings["chromium_builder"]["enable_chromium_build"]) {
       const commitId = settings["chromium_builder"]["commit_id"];
@@ -43,9 +42,12 @@ async function main() {
     if (subject === "")
       subject = '[W' + weekAndDay + '] Web PnP auto test report - ' + platform + ' - ' + deviceInfo["CPU"]["info"] + ' - ' + deviceInfo.Browser;
     console.log("Subject: ", subject);
-    // in dev mode, check browser version will be skipped.
     if (!settings.dev_mode) {
-      await browser.checkBrowserVersion(deviceInfo);
+      // Clean up charts and results folder
+      await chart.cleanUpChartFiles();
+      await run.cleanUpResultFiles();
+      // in dev mode, check browser version will be skipped.
+      // await browser.checkBrowserVersion(deviceInfo);
     }
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     // const workloadResults = await runTest.searchTestResults("Intel-TGL", "Canary", "86.0.4207");
@@ -90,7 +92,7 @@ async function main() {
   }
 
   // Update the browser version in config.json if necessary
-  await browser.updateConfig(deviceInfo, settings);
+  // await browser.updateConfig(deviceInfo, settings);
   await chart.cleanUpChartFiles();
 
 }
