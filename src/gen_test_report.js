@@ -211,7 +211,7 @@ async function findCompetitorResult(resultPath) {
     console.log("Found the competitor test result: ", amdPath);
     const rawComparedData = await fsPromises.readFile(amdPath, 'utf-8');
     const amdResult = JSON.parse(rawComparedData);
-    console.log("Competitor result: ", amdResult);
+    // console.log("Competitor result: ", amdResult);
     return Promise.resolve({path: amdPath, result: amdResult});
   }
 }
@@ -268,6 +268,21 @@ async function hasPreResults(resultPaths) {
   return Promise.resolve(false);
 
 }
+
+async function getCompetitorDeviceInfo(resultPaths) {
+  let deviceInfo = "";
+  for (const key in resultPaths) {
+    const resultPath = resultPaths[key];
+    const competitor = await findCompetitorResult(resultPath);
+    const competitorResult = competitor.result;
+    if (competitorResult !== "") {
+      deviceInfo = competitorResult.device_info;
+      break;
+    }
+  }
+  return Promise.resolve(deviceInfo);
+}
+
 /*
 * Generate test report as html
 * @param: {Object}, resultPaths, an object reprensents for test result path
@@ -360,4 +375,7 @@ async function genTestReport(resultPaths) {
 // await sendMail("test", result, "error", chartImages);
 // })();
 
-module.exports = genTestReport;
+module.exports = {
+  genTestReport: genTestReport,
+  getCompetitorDeviceInfo: getCompetitorDeviceInfo
+};

@@ -4,7 +4,8 @@
 const genDeviceInfo = require('./src/get_device_info.js');
 const runTest = require('./src/run.js');
 const browser = require('./src/browser.js');
-const genTestReport = require('./src/gen_test_report.js');
+const genTestReport = require('./src/gen_test_report.js').genTestReport;
+const getCompetitorDeviceInfo = require('./src/gen_test_report.js').getCompetitorDeviceInfo;
 const sendMail = require('./src/send_mail.js');
 const settings = require('./config.json');
 const excel = require('./src/excel.js');
@@ -62,7 +63,8 @@ async function main() {
     // only attach the trend charts for regular weekly testing
     // Since AMD testing is before Intel, downloading charts is available after Intel testing done.
     if (cpuModel.includes('Intel') && !settings.dev_mode) {
-      await chart.dlCharts(deviceInfo);
+      const competitorDeviceinfo = await getCompetitorDeviceInfo(workloadResults);
+      await chart.dlCharts(deviceInfo, competitorDeviceinfo);
       chartImages = await chart.getChartFiles();
       console.log(chartImages);
     }

@@ -9,7 +9,7 @@ const cpuList = require('../cpu_list.json');
 /*
 * Download screenshots trend charts from Web PnP Report page.
 */
-async function dlCharts(deviceInfo) {
+async function dlCharts(deviceInfo, competitorDeviceInfo) {
 
   let date = new Date();
   let isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
@@ -33,9 +33,15 @@ async function dlCharts(deviceInfo) {
   const cpu1 = deviceInfo['CPU']['info'];
   const cpu1_brand = deviceInfo['CPU']['brand'];
 
+  let gpu1 = deviceInfo['GPU'];
+
   // Competitor's CPU info
   const cpu2 = cpuList["Intel"][cpu1_brand]["competitor"];
   let os = "Windows";
+
+  if (competitorDeviceInfo !== "") {
+    gpu1 += '&gpu=' + competitorDeviceInfo['GPU'];
+  }
   if (!deviceInfo['OS'].includes('Windows'))
     os = "Ubuntu";
   const browserName = "Chrome";
@@ -52,7 +58,7 @@ async function dlCharts(deviceInfo) {
   let i = 1;
   for (let workload of settings.workloads) {
     const workloadName = workload.name;
-    let chart_page_param = `?workload=${selectors[workloadName]['name']}&channel=${browserChannel}&os=${os}&browser=${browserName}&cpu=${cpu1}&cpu=${cpu2}`;
+    let chart_page_param = `?workload=${selectors[workloadName]['name']}&channel=${browserChannel}&os=${os}&browser=${browserName}&cpu=${cpu1}&cpu=${cpu2}&gpu=${gpu1}`;
     let chart_page_url = chart_page_host + chart_page_param;
     console.log("chart page url: ", chart_page_url);
     await page.goto(chart_page_url, { waitUntil: 'load', timeout: 60000 });
