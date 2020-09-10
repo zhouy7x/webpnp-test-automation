@@ -187,10 +187,10 @@ function compareVersion(currentVersion, prevVersion) {
     return false;
   const currentVersionArr = currentVersion.split('.');
   const prevVersionArr = prevVersion.split('.');
-  let compareResult = true;
+  let compareResult = false;
   for (let i = 0; i < currentVersionArr.length; i ++) {
-    if (parseInt(currentVersionArr[i]) < parseInt(prevVersionArr[i])) {
-      compareResult = false;
+    if (parseInt(currentVersionArr[i]) > parseInt(prevVersionArr[i])) {
+      compareResult = true;
       break;
     }
   }
