@@ -166,7 +166,7 @@ async function findPreTestResult(resultPath) {
       const prevBrowser = dirent.split('_')[2];
       const prevBrowserChannel = prevBrowser.split('-')[1];
       if (currentCPU === dirent.split('_')[1] && currentBrowserChannel === prevBrowserChannel &&
-        currentBrowser > prevBrowser)
+        compareVersion(currentBrowser, prevBrowser))
         dirents.push(dirent);
     }
     if (dirents.length > 0) {
@@ -180,6 +180,21 @@ async function findPreTestResult(resultPath) {
       return Promise.resolve("");
     }
   }
+}
+
+function compareVersion(currentVersion, prevVersion) {
+  if (currentVersion === prevVersion)
+    return false;
+  const currentVersionArr = currentVersion.split('.');
+  const prevVersionArr = prevVersion.split('.');
+  let compareResult = true;
+  for (let i = 0; i < currentVersionArr.length; i ++) {
+    if (parseInt(currentVersionArr[i]) < parseInt(prevVersionArr[i])) {
+      compareResult = false;
+      break;
+    }
+  }
+  return compareResult;
 }
 
 async function findCompetitorResult(resultPath) {
