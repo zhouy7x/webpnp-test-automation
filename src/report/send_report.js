@@ -66,7 +66,7 @@ async function main() {
 
 (async () => {
   // Run every 6h
-  cron.schedule("* * */6 * * *", () => {
+  cron.schedule("* * */6 * * *", async () => {
     await main();
   });
 })();
