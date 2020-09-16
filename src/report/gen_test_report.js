@@ -5,6 +5,7 @@ const fsPromises = fs.promises;
 const path = require('path');
 const chart = require('./chart.js');
 const settings = require('../../config.json');
+const { report } = require('process');
 /*
 * Draw table header
 * @param {String}, type, one of ["summary", "details"]
@@ -332,18 +333,18 @@ async function genTestReport(workloadResults, deviceInfos, platform, browser) {
   // Composite html body
   let charts = await chart.getChartFiles();
   let chartImagesMail = '<br/>', chartImages = '<br/>';
-  const oldChartsDir = path.join(settings.result_server.reportDir, 'html', 'charts');
+  const reportUrl = 'http://powerbuilder.sh.intel.com/project/webpnp/html/';
   if (charts.length > 0) {
     for (let chart of charts) {
-      chartImages += `<img src="${path.join(oldChartsDir, chart)}"><br/><br/>`;
-      chartImagesMail += `<img src="cid:'${chart.replace('.png', '')}'" style="width:480px;height:360px;"><br/>`;
+      chartImages += `<img src="${reportUrl + 'charts/' + ${chart} }"><br/><br/>`;
+      chartImagesMail += '<img src="cid:' + chart.replace('.png', '') + '" style="width:480px;height:360px;"><br/>';
     }
   }
   const html = htmlStyle + chartImages + "<br/><b>Summary:</b><br><br>" + summaryTables + "<hr><br><b>Details:</b>"
     + resultTables + "" + "<b>Device Info:</b><br><br>" + deviceInfoTable;
   console.log(`******Generate detailed results as html to ${settings.result_server.reportDir}/html/******`);
   await fsPromises.writeFile(`${settings.result_server.reportDir}/html/${platform}_${browser}.html`, html);
-  const htmlLink = `http://powerbuilder.sh.intel.com/project/webpnp/html/${platform}_${browser}.html`;
+  const htmlLink = `${reportUrl + platform}_${browser}.html`;
   const mailHtml = htmlStyle + chartImagesMail + "<br/><b>Summary:</b><br><br>" + summaryTables + "<br><b>Details:</b> " + htmlLink
     + "<br><br><b>Device Info:</b><br><br>" + deviceInfoTable;
   return Promise.resolve(mailHtml);
