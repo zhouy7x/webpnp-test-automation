@@ -24,6 +24,9 @@ async function main() {
   let deviceInfo = {};
   let subject = "";
   try {
+    if (settings.result_server.password === "") {
+      return Promise.reject(`Please set the result server's password to config.json`);
+    }
     // Use private chroimum build if chromium build is enabled
     if (settings["chromium_builder"]["enable_chromium_build"]) {
       const commitId = settings["chromium_builder"]["commit_id"];
