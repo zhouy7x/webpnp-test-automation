@@ -133,7 +133,7 @@ async function syncRemoteDirectory(workload, action) {
   };
 
   let currentPlatform = getPlatformName();
-  let remoteResultDir = `/home/${settings.result_server.username}/webpnp/results/${currentPlatform}/${workload.name}`;
+  let remoteResultDir = `${settings.result_server.reportDir}/new-results/${currentPlatform}/${workload.name}`;
   let sftp = new Client();
   try {
     await sftp.connect(serverConfig);
@@ -254,8 +254,8 @@ async function genWorkloadsResults(deviceInfo) {
 
 module.exports = {
   getPlatformName: getPlatformName,
-  searchTestResults: searchTestResults,
-  pullRemoteResults: pullRemoteResults,
+  // searchTestResults: searchTestResults,
+  // pullRemoteResults: pullRemoteResults,
   genWorkloadsResults: genWorkloadsResults,
   cleanUpResultFiles: cleanUpResultFiles
 }

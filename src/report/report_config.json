@@ -1,0 +1,60 @@
+{
+  "platforms": [
+    "Windows"
+  ],
+  "channels": {
+    "Canary": {
+      "devices": [
+        "Intel-TGL-i7-1185G7",
+        "AMD-Zen-2-Ryzen-7-4800U",
+        "Intel-CFL-i9-9900K",
+        "AMD-Zen-2-Ryzen-9-3900X"
+      ],
+      "workloads": [
+        "Speedometer2",
+        "WebXPRT3",
+        "Unity3D",
+        "JetStream2"
+      ],
+      "ignore_list": [
+        {
+          "Intel-TGL-i7-1185G7": [
+            "Unity3D"
+          ]
+        }
+      ]
+    },
+    "Beta": {
+      "devices": [
+        "Intel-TGL-i7-1185G7",
+        "AMD-Zen-2-Ryzen-7-4800U",
+        "Intel-CFL-i9-9900K",
+        "AMD-Zen-2-Ryzen-9-3900X"
+      ],
+      "workloads": [
+        "Speedometer2",
+        "WebXPRT3",
+        "Unity3D",
+        "JetStream2"
+      ],
+      "ignore_list": []
+    },
+    "Stable": {
+      "devices": [
+        "Intel-TGL-i7-1185G7",
+        "AMD-Zen-2-Ryzen-7-4800U",
+        "Intel-CFL-i9-9900K",
+        "AMD-Zen-2-Ryzen-9-3900X"
+      ],
+      "workloads": [
+        "Speedometer2",
+        "WebXPRT3"
+      ],
+      "ignore_list": []
+    }
+  },
+  "compare_list": {
+    "Intel-TGL-i7-1185G7": "AMD-Zen-2-Ryzen-7-4800U",
+    "Intel-CFL-i9-9900K": "AMD-Zen-2-Ryzen-9-3900X"
+  }
+}
