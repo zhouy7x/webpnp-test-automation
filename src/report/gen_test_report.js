@@ -336,7 +336,7 @@ async function genTestReport(workloadResults, deviceInfos, platform, browser) {
   const reportUrl = 'http://powerbuilder.sh.intel.com/project/webpnp/html/';
   if (charts.length > 0) {
     for (let chart of charts) {
-      chartImages += `<img src="${reportUrl + 'charts/' + ${chart} }"><br/><br/>`;
+      chartImages += `<img src="${reportUrl + 'charts/' + chart}"><br/><br/>`;
       chartImagesMail += '<img src="cid:' + chart.replace('.png', '') + '" style="width:480px;height:360px;"><br/>';
     }
   }
