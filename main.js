@@ -24,7 +24,8 @@ async function main() {
   let deviceInfo = {};
   let subject = "";
   try {
-    if (settings.result_server.password === "") {
+    if (!settings.dev_mode && settings.result_server.password === "") {
+      // Regular testing should set correct password of result server
       return Promise.reject(`Please set the result server's password to config.json`);
     }
     // Use private chroimum build if chromium build is enabled
