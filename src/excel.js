@@ -152,7 +152,7 @@ async function uploadExcelFile(pathname) {
     username: settings.result_server.username,
     password: settings.result_server.password
   };
-  let remoteResultDir = path.join(settings.result_server.reportDir, 'PHP', 'files');
+  let remoteResultDir = settings.result_server.reportDir + 'PHP/files/';
   let error = "";
   let remoteExcelPathName = "";
   try {
