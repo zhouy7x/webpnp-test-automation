@@ -37,7 +37,13 @@
         "Unity3D",
         "JetStream2"
       ],
-      "ignore_list": []
+      "ignore_list": [
+        {
+          "Intel-TGL-i7-1185G7": [
+            "Unity3D"
+          ]
+        }
+      ]
     },
     "Stable": {
       "devices": [
