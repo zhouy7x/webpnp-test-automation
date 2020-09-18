@@ -73,7 +73,7 @@ async function runWorkload(workload, executor) {
 async function storeTestData(deviceInfo, workload, jsonData) {
   let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
   if (!fs.existsSync(testResultsDir)) {
-    fs.mkdirSync(testResultsDir, {recursive: true});
+    fs.mkdirSync(testResultsDir, { recursive: true });
   }
 
   let cpuInfo = [deviceInfo['CPU']['mfr'], deviceInfo['CPU']['info'].replace(/\s/g, '-')].join('-');
@@ -81,8 +81,8 @@ async function storeTestData(deviceInfo, workload, jsonData) {
   let isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
   let jsonDate = isoDate.toISOString().split('.')[0].replace(/T|-|:/g, '');
   let browser = deviceInfo['Browser'];
-  let jsonFilename = jsonDate + '_' + cpuInfo + '_' + browser + '.json';
-  let absJSONFilename = path.join(testResultsDir, jsonFilename);
+  let jsonFileName = jsonDate + '_' + cpuInfo + '_' + browser + '.json';
+  let absJSONFilename = path.join(testResultsDir, jsonFileName);
 
   await fsPromises.writeFile(absJSONFilename, JSON.stringify(jsonData, null, 4));
   return Promise.resolve(absJSONFilename);
@@ -106,20 +106,20 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
   }
   console.log(JSON.stringify(jsonData, null, 4));
 
-  let jsonFilename = await storeTestData(deviceInfo, workload, jsonData);
+  let jsonFileName = await storeTestData(deviceInfo, workload, jsonData);
   if (!settings.dev_mode) {
-    await syncRemoteDirectory(workload, 'push');
+    await syncRemoteDirectory(workload, jsonFileName, 'push');
   }
-  return Promise.resolve(jsonFilename);
+  return Promise.resolve(jsonFileName);
 }
 
 /*
 * Sync local test results directory with the one in remote server.
 */
-async function syncRemoteDirectory(workload, action) {
+async function syncRemoteDirectory(workload, fileName, action) {
   let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
   if (!fs.existsSync(testResultsDir)) {
-    fs.mkdirSync(testResultsDir, {recursive: true});
+    fs.mkdirSync(testResultsDir, { recursive: true });
   }
   let localResultFiles = await fsPromises.readdir(testResultsDir);
 
@@ -146,19 +146,17 @@ async function syncRemoteDirectory(workload, action) {
         if (!fs.existsSync(path.join(testResultsDir, remoteFile.name))) {
           console.log(`Downloading remote file: ${remoteFile.name}...`);
           await sftp.fastGet(remoteResultDir + '/' + remoteFile.name,
-                            path.join(testResultsDir, remoteFile.name));
+            path.join(testResultsDir, remoteFile.name));
           console.log(`Remote file: ${remoteFile.name} downloaded.`);
         }
       }
     } else if (action === 'push') {
-      for (let localFile of localResultFiles) {
-        let absRemoteFilename = remoteResultDir + `/${localFile}`;
-        let remoteFileExist = await sftp.exists(absRemoteFilename);
-        if (!remoteFileExist) {
-          console.log(`Uploading local file: ${localFile}`);
-          await sftp.fastPut(path.join(testResultsDir, localFile), absRemoteFilename);
-          console.log(`${localFile} uploaded to remote server.`);
-        }
+      let absRemoteFileName = remoteResultDir + `/${fileName}`;
+      let remoteFileExist = await sftp.exists(absRemoteFileName);
+      if (!remoteFileExist) {
+        console.log(`Uploading local file: ${localFile}`);
+        await sftp.fastPut(path.join(testResultsDir, fileName), absRemoteFileName);
+        console.log(`${localFile} uploaded to remote server.`);
       }
     }
   } catch (err) {
@@ -183,14 +181,15 @@ async function syncRemoteDirectory(workload, action) {
 async function searchTestResults(cpu, browserChannel, browserVersion) {
   let results = {};
   for (let workload of settings.workloads) {
-    let testResultDir = await syncRemoteDirectory(workload, 'pull');
+    // let testResultDir = await syncRemoteDirectory(workload, '', 'pull');
+    let testResultDir = path.join(process.cwd(), 'results', 'Windows', workload.name);
     let resultFiles = await fs.promises.readdir(testResultDir);
     let result = [];
     for (let file of resultFiles) {
       if (file.includes(cpu) && file.includes(browserChannel) && file.includes(browserVersion))
         result.push(file);
     }
-    if(result.length !== 1)
+    if (result.length !== 1)
       return Promise.reject(`Error: unexpected result length: ${result.length}`);
     results[workload.name] = path.join(testResultDir, result[0]);
   }
@@ -203,7 +202,7 @@ async function searchTestResults(cpu, browserChannel, browserVersion) {
  */
 async function pullRemoteResults() {
   for (let workload of settings.workloads) {
-    await syncRemoteDirectory(workload, 'pull');
+    await syncRemoteDirectory(workload, '', 'pull');
   }
   return Promise.resolve();
 }
