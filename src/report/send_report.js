@@ -5,6 +5,7 @@ const checkReport = require('./check_report.js');
 const sendMail = require('../send_mail.js');
 const reportConfig = require('./report_config.json');
 const settings = require('../../config.json');
+const excel = require('./excel.js');
 const chart = require('./chart.js');
 const cron = require('node-cron');
 const moment = require('moment');
@@ -28,6 +29,10 @@ async function main() {
       const deviceInfos = [];
       for (let key in availableReport.report) {
         deviceInfos.push(availableReport['report'][key]['device_info']);
+        const workloadResults = availableReport['report'][key]['workloads'];
+        // Upload each testing result as excel to webpnp test reporter
+        const excelPathName = await excel.genExcelFiles(workloadResults);
+        await excel.execUploadScript(excelPathName); // upload the .xlsx data
       }
       let chartImages = [];
       // Download chart files

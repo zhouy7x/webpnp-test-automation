@@ -17,10 +17,9 @@ The automation test mainly takes the following actions:
 * Choose the middle value among the test arounds and store the device information and all the results of this workload test
   to `./results/{platform}/{workload}` directory(If it does not exists, create it). The files are named as `{data}_{CPU}_{Browser}.json`.
 * Before storing the test results to json files, upload this test results to remote server for backup.
-* Generate the excel files to list the scores between CPUs for the same workload at `./excels` directory(If it does not exists, create it)
-  and then upload them to the Web PnP Report site database.
 * Test report delivery is hosted on remote server, which will do following actions:
   1. Check if there are avaliable completed report for one round of regular tesitng every 6 hours, if yes, start generating test report.
+  1. Generate excel files to list the scores between CPUs for the same workload at `./excels` directory(If it does not exists, create it) and then upload them to the Web PnP Report site database.
   1. Download the trend charts for each workload and put them on the `./charts` directory(If it does not exists, create it).
   1. Generate html report that contains the comparison tables based on the json files. The trend charts will be inserted into the html.
   1. Send E-mail to involved teams of the project. If there're any errors occured, send the errors information to dev team.

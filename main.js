@@ -7,7 +7,6 @@ const browser = require('./src/browser.js');
 const genSingleReport = require('./src/gen_single_report.js');
 const sendMail = require('./src/send_mail.js');
 const settings = require('./config.json');
-const excel = require('./src/excel.js');
 const cron = require('node-cron');
 const moment = require('moment');
 const os = require('os');
@@ -46,11 +45,6 @@ async function main() {
 
     const workloadResults = await runTest.genWorkloadsResults(deviceInfo);
     console.log(JSON.stringify(workloadResults, null, 4));
-    if (!settings.dev_mode) {
-      // Upload each testing result as excel to webpnp test reporter
-      const remoteExcelPathName = await excel.genExcelFilesAndUpload(workloadResults);
-      await excel.remoteExecUploadScript(remoteExcelPathName); // upload the .xlsx data
-    }
 
     const mailType = 'dev_notice';
     const testReports = await genSingleReport(workloadResults);

@@ -2,10 +2,9 @@ const fs = require('fs');
 const fsPromises = fs.promises;
 const path = require('path');
 const xl = require('excel4node');
-const Client = require('ssh2-sftp-client');
-const SSH2Promise = require('ssh2-promise');
-const run = require('./run.js');
-const settings = require('../config.json');
+const run = require('../run.js');
+const settings = require('../../config.json');
+const { exec } = require("child_process");
 
 
 /*
@@ -28,10 +27,10 @@ function getExcelFilename(jsonPath) {
 }
 
 /*
-* Write the test results stored in JSON file to excel and upload to server
+* Write the test results stored in JSON file to excel
 * 
 */
-async function genExcelFilesAndUpload(fileInfo) {
+async function genExcelFiles(fileInfo) {
   let results = {};
   let excelFileName = '';
 
@@ -56,9 +55,8 @@ async function genExcelFilesAndUpload(fileInfo) {
 
   let excelPathName = path.join(excelDir, excelFileName);
   await writeDataToExcel(excelPathName, results);
-  const remoteExcelPathName = await uploadExcelFile(excelPathName);
 
-  return Promise.resolve(remoteExcelPathName);
+  return Promise.resolve(newPath);
 }
 
 /*
@@ -141,92 +139,36 @@ async function writeDataToExcel(pathname, jsonData) {
 }
 
 /*
-* Upload excel file to a the server
+* uploading the excel data to web server
 */
-async function uploadExcelFile(pathname) {
-
-  let excelName = path.basename(pathname);
-  let sftp = new Client();
-  let serverConfig = {
-    host: settings.result_server.host,
-    username: settings.result_server.username,
-    password: settings.result_server.password
-  };
-  let remoteResultDir = settings.result_server.reportDir + 'PHP/files/';
-  let error = "";
-  let remoteExcelPathName = "";
-  try {
-    await sftp.connect(serverConfig);
-    let remoteResultDirExist = await sftp.exists(remoteResultDir);
-    if (!remoteResultDirExist) {
-      console.log(`mkdir -pv ${remoteResultDir} on remote server to store excel files...`);
-      await sftp.mkdir(remoteResultDir, true);
-      console.log(`${remoteResultDir} created on remote server`);
-    }
-
-    remoteExcelPathName = remoteResultDir + `/${excelName}`;
-    let remoteFileExist = await sftp.exists(remoteExcelPathName);
-    if (remoteFileExist) {
-      console.log(`${remoteExcelPathName} already exists, remove it first`);
-      await sftp.delete(remoteExcelPathName);
-      console.log(`${remoteExcelPathName} deleted on remote server`);
-    }
-    console.log(`Uploading local excel file: ${pathname}`);
-    await sftp.fastPut(pathname, remoteExcelPathName);
-    console.log(`${pathname} uploaded to remote server.`);
-  } catch (err) {
-    console.log(err);
-    error = err;
-  } finally {
-    await sftp.end();
-  }
-  if (error !== "")
-    return Promise.reject("Error occurs when uploading excel file: ", error);
-  return Promise.resolve(remoteExcelPathName);
-}
-
-/*
-* Remotely uploading the excel data to web server
-*/
-async function remoteExecUploadScript(file_path) {
-  let serverConfig = {
-    host: settings.result_server.host,
-    username: settings.result_server.username,
-    password: settings.result_server.password
-  };
-  let ssh = new SSH2Promise(serverConfig);
-  let error = "";
+async function execUploadScript(file_path) {
   const token = "4fc97c5dc10c681a87c5eb6178c60a0025299e44";
+  let error = "";
+  const curlCommand = `curl -F files=@${file_path} -F project=1 http://webpnp.sh.intel.com/api/report/ -H 'Authorization: Token ${token}'`;
+  console.log(`Executing uploading report:`);
   try {
-    await ssh.connect();
-    console.log(`Remote server ${serverConfig.host} connected`);
-    console.log(`Executing upload on remote server:`);
-    const curlCommand = `curl -F files=@${file_path} -F project=1 http://webpnp.sh.intel.com/api/report/ -H 'Authorization: Token ${token}'`;
-    await new Promise(async (resolve, reject) => {
-      ssh.spawn(curlCommand).then(socket => {
-        socket.on('data', (data) => {
-          console.log(data.toString());
-          resolve();
-        });
-      }).catch(e => reject(e));
+    await new Promise((resolve, reject) => {
+      exec(curlCommand, (error, stdout, stderr) => {
+        console.log(stdout);
+        if (error) {
+          reject(`error: ${error.message}`);
+        }
+        if (stderr) {
+          reject(`stderr: ${stderr}`);
+        }
+        resolve();
+      });
     });
   } catch (err) {
     console.log("error occurs: ");
     console.log(error);
     error = err;
-  } finally {
-    await ssh.close();
   }
-  if (error !== "") {
-    console.log(error.toString());
-    // TODO: fix error on ssh.exec(curlCommand)
-    // return Promise.reject(error);
-  }
-  console.log("************upload.py executed successfully****************");
+  console.log(`************${file_path} uploaded to webpnp report server successfully****************`);
   return Promise.resolve();
 }
 
 module.exports = {
-  genExcelFilesAndUpload: genExcelFilesAndUpload,
-  remoteExecUploadScript: remoteExecUploadScript
+  genExcelFiles: genExcelFiles,
+  execUploadScript: execUploadScript
 };
