@@ -45,12 +45,12 @@ async function genExcelFiles(fileInfo) {
 
     if (excelFileName === '')
       excelFileName = getExcelFilename(resultFilePath);
-    }
+  }
 
   console.log(`Excel file name: ${excelFileName}`);
   let excelDir = path.join(process.cwd(), 'excels');
   if (!fs.existsSync(excelDir)) {
-    fs.mkdirSync(excelDir, {recursive: true});
+    fs.mkdirSync(excelDir, { recursive: true });
   }
 
   let excelPathName = path.join(excelDir, excelFileName);
@@ -93,10 +93,10 @@ async function writeDataToExcel(pathname, jsonData) {
       let osVer = device['OS Version'];
       let browserVer = device['Browser'].split('-').pop();
       deviceInfo = ['CPU: ' + cpu,
-                    'GPU: ' + gpu,
-                    'GPU Version: ' + gpuVer,
-                    'OS Version: ' + osVer,
-                    'Browser Version: ' + browserVer].join('\n');
+      'GPU: ' + gpu,
+      'GPU Version: ' + gpuVer,
+      'OS Version: ' + osVer,
+      'Browser Version: ' + browserVer].join('\n');
 
     }
 
@@ -105,7 +105,7 @@ async function writeDataToExcel(pathname, jsonData) {
       totalWorkloadName = workloadNameConverter[workload];
 
     totalWorkloadScoreRows.push([totalWorkloadName, totalWorkloadName, 'score',
-                                jsonData[workload]['test_result']['Total Score']]);
+      jsonData[workload]['test_result']['Total Score']]);
 
     for (let subCase in jsonData[workload]['test_result']) {
       if (subCase !== 'Total Score') {
@@ -143,29 +143,23 @@ async function writeDataToExcel(pathname, jsonData) {
 */
 async function execUploadScript(file_path) {
   const token = "4fc97c5dc10c681a87c5eb6178c60a0025299e44";
-  let error = "";
   const curlCommand = `curl -F files=@${file_path} -F project=1 http://webpnp.sh.intel.com/api/report/ -H 'Authorization: Token ${token}'`;
   console.log(`Executing uploading report:`);
-  try {
-    await new Promise((resolve, reject) => {
-      exec(curlCommand, (error, stdout, stderr) => {
+  return new Promise((resolve, reject) => {
+    exec(curlCommand, (error, stdout, stderr) => {
+      if (stdout) {
         console.log(stdout);
-        if (error) {
-          reject(`error: ${error.message}`);
+        if (stdout.includes('web_pnp_reporter uploaded the report')) {
+          console.log(`************${file_path} uploaded to webpnp report server successfully****************`);
+          resolve();
+        } else {
+          reject(`Error: Failed to upload ${file_path} to webpnp reporter`);
         }
-        if (stderr) {
-          reject(`stderr: ${stderr}`);
-        }
-        resolve();
-      });
+      } else {
+        reject(`Error: Failed to upload ${file_path} to webpnp reporter`);
+      }
     });
-  } catch (err) {
-    console.log("error occurs: ");
-    console.log(error);
-    error = err;
-  }
-  console.log(`************${file_path} uploaded to webpnp report server successfully****************`);
-  return Promise.resolve();
+  });
 }
 
 module.exports = {
