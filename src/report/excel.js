@@ -56,7 +56,7 @@ async function genExcelFiles(fileInfo) {
   let excelPathName = path.join(excelDir, excelFileName);
   await writeDataToExcel(excelPathName, results);
 
-  return Promise.resolve(newPath);
+  return Promise.resolve(excelPathName);
 }
 
 /*
