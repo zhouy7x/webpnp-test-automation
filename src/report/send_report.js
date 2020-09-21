@@ -13,6 +13,7 @@ const path = require('path');
 
 
 async function main() {
+  console.log("New Loging at: ", new Date());
   const newResultsDir = path.join(settings.result_server.reportDir, 'new-results');
   let now = moment();
   const weekAndDay = now.week() + '.' + now.day();
