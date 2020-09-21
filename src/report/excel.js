@@ -145,8 +145,8 @@ async function execUploadScript(file_path) {
   console.log(`Executing uploading report:`);
   return new Promise((resolve, reject) => {
     exec(curlCommand, (error, stdout, stderr) => {
+      console.log("stdout: ", stdout);
       if (stdout) {
-        console.log(stdout);
         if (stdout.includes('web_pnp_reporter uploaded the report')) {
           console.log(`************${file_path} uploaded to webpnp report server successfully****************`);
           resolve();

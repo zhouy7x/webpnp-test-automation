@@ -34,6 +34,8 @@ async function main() {
         // Upload each testing result as excel to webpnp test reporter
         const excelPathName = await excel.genExcelFiles(workloadResults, platform);
         await excel.execUploadScript(excelPathName); // upload the .xlsx data
+        // Timeout for a while for webpnp report server to execute data import
+        await new Promise(resolve => setTimeout(resolve, 10000));
       }
       let chartImages = [];
       // Download chart files
