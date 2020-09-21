@@ -121,7 +121,6 @@ async function syncRemoteDirectory(workload, fileName, action) {
   if (!fs.existsSync(testResultsDir)) {
     fs.mkdirSync(testResultsDir, { recursive: true });
   }
-  let localResultFiles = await fsPromises.readdir(testResultsDir);
 
   const serverConfig = {
     host: settings.result_server.host,
@@ -153,9 +152,10 @@ async function syncRemoteDirectory(workload, fileName, action) {
     } else if (action === 'push') {
       let absRemoteFileName = remoteResultDir + `/${fileName}`;
       let remoteFileExist = await sftp.exists(absRemoteFileName);
+      const localFile = path.join(testResultsDir, fileName);
       if (!remoteFileExist) {
         console.log(`Uploading local file: ${localFile}`);
-        await sftp.fastPut(path.join(testResultsDir, fileName), absRemoteFileName);
+        await sftp.fastPut(localFile, absRemoteFileName);
         console.log(`${localFile} uploaded to remote server.`);
       }
     }

@@ -139,7 +139,7 @@ async function writeDataToExcel(pathname, jsonData) {
 }
 
 /*
-* uploading the excel data to web server
+* uploading the excel data to web pnp server
 */
 async function execUploadScript(file_path) {
   const token = "4fc97c5dc10c681a87c5eb6178c60a0025299e44";
