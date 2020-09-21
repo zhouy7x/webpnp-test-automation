@@ -32,7 +32,7 @@ async function main() {
         deviceInfos.push(availableReport['report'][key]['device_info']);
         const workloadResults = availableReport['report'][key]['workloads'];
         // Upload each testing result as excel to webpnp test reporter
-        const excelPathName = await excel.genExcelFiles(workloadResults);
+        const excelPathName = await excel.genExcelFiles(workloadResults, platform);
         await excel.execUploadScript(excelPathName); // upload the .xlsx data
       }
       let chartImages = [];

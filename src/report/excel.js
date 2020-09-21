@@ -2,7 +2,6 @@ const fs = require('fs');
 const fsPromises = fs.promises;
 const path = require('path');
 const xl = require('excel4node');
-const run = require('../run.js');
 const settings = require('../../config.json');
 const { exec } = require("child_process");
 
@@ -10,13 +9,12 @@ const { exec } = require("child_process");
 /*
 * Get excel filename base on JSON file path
 */
-function getExcelFilename(jsonPath) {
+function getExcelFilename(jsonPath, platform) {
   let resultFileBasename = path.basename(jsonPath, '.json');
   let resultFileParts = resultFileBasename.split('_');
 
   let date = resultFileParts[0].substring(0, 8);
   let device = resultFileParts[1];
-  let platform = run.getPlatformName();
 
   let browserParts = resultFileParts[resultFileParts.length - 1].split('-');
   browserParts.pop();
@@ -30,7 +28,7 @@ function getExcelFilename(jsonPath) {
 * Write the test results stored in JSON file to excel
 * 
 */
-async function genExcelFiles(fileInfo) {
+async function genExcelFiles(fileInfo, platform) {
   let results = {};
   let excelFileName = '';
 
@@ -44,7 +42,7 @@ async function genExcelFiles(fileInfo) {
     results[workload] = JSON.parse(rawData);
 
     if (excelFileName === '')
-      excelFileName = getExcelFilename(resultFilePath);
+      excelFileName = getExcelFilename(resultFilePath, platform);
   }
 
   console.log(`Excel file name: ${excelFileName}`);
