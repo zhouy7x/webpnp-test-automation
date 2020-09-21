@@ -150,13 +150,12 @@ async function syncRemoteDirectory(workload, fileName, action) {
         }
       }
     } else if (action === 'push') {
-      let absRemoteFileName = remoteResultDir + `/${fileName}`;
+      let absRemoteFileName = remoteResultDir + `/${path.basename(fileName)}`;
       let remoteFileExist = await sftp.exists(absRemoteFileName);
-      const localFile = path.join(testResultsDir, fileName);
       if (!remoteFileExist) {
-        console.log(`Uploading local file: ${localFile}`);
-        await sftp.fastPut(localFile, absRemoteFileName);
-        console.log(`${localFile} uploaded to remote server.`);
+        console.log(`Uploading local file: ${fileName}`);
+        await sftp.fastPut(fileName, absRemoteFileName);
+        console.log(`${fileName} uploaded to remote server.`);
       }
     }
   } catch (err) {
