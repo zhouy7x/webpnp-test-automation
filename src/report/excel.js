@@ -143,6 +143,7 @@ async function execUploadScript(file_path) {
   const token = "4fc97c5dc10c681a87c5eb6178c60a0025299e44";
   const curlCommand = `curl -F files=@${file_path} -F project=1 http://webpnp.sh.intel.com/api/report/ -H 'Authorization: Token ${token}'`;
   console.log(`Executing uploading report:`);
+  await new Promise(resolve => setTimeout(resolve, 5000));
   return new Promise((resolve, reject) => {
     exec(curlCommand, (error, stdout, stderr) => {
       console.log("stdout: ", stdout);
