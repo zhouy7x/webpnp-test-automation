@@ -35,6 +35,7 @@
     "from": "wanming.lin@intel.com",
     "to": [
       "chromiumopt@intel.com",
+      "greg.w.meyer@intel.com",
       "shiyu.zhang@intel.com",
       "qi.zhang@intel.com",
       "jonathan.ding@intel.com",
