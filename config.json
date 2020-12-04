@@ -32,7 +32,7 @@
   "test_cadence": "0 0 5 * * Sat",
   "enable_cron": false,
   "mail_test_report": {
-    "from": "wanming.lin@intel.com",
+    "from": "hongjuan.wang@intel.com",
     "to": [
       "chromiumopt@intel.com",
       "greg.w.meyer@intel.com",
@@ -49,9 +49,9 @@
     ]
   },
   "mail_dev_notice": {
-    "from": "wanming.lin@intel.com",
+    "from": "hongjuan.wang@intel.com",
     "to": [
-      "wanming.lin@intel.com"
+      "hongjuan.wang@intel.com"
     ]
   },
   "result_server": {
