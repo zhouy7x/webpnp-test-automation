@@ -29,23 +29,36 @@
   "linux_chrome_path": "/usr/bin/google-chrome-unstable",
   "chrome_flags": [],
   "update_browser_sched": "0 0 0 * * Sat",
-  "intel_test_cadence": "0 0 5 * * Sat",
-  "amd_test_cadence": "0 0 1 * * Sat",
+  "test_cadence": "0 0 5 * * Sat",
   "enable_cron": false,
   "mail_test_report": {
-    "from": "wanming.lin@intel.com",
-    "to": ["chromiumopt@intel.com", "shiyu.zhang@intel.com", "qi.zhang@intel.com",
-          "jonathan.ding@intel.com", "canx.cao@intel.com", "daoming.qiu@intel.com",
-          "yihuix.xie@intel.com", "yangx.a.zhou@intel.com"]
+    "from": "hongjuan.wang@intel.com",
+    "to": [
+      "chromiumopt@intel.com",
+      "greg.w.meyer@intel.com",
+      "shiyu.zhang@intel.com",
+      "qi.zhang@intel.com",
+      "jonathan.ding@intel.com",
+      "canx.cao@intel.com",
+      "daoming.qiu@intel.com",
+      "v8opt@intel.com",
+      "yolanda.chen@intel.com",
+      "jing.bao@intel.com",
+      "yihuix.xie@intel.com",
+      "yangx.a.zhou@intel.com"
+    ]
   },
   "mail_dev_notice": {
-    "from": "wanming.lin@intel.com",
-    "to":["wanming.lin@intel.com"]
+    "from": "hongjuan.wang@intel.com",
+    "to": [
+      "hongjuan.wang@intel.com"
+    ]
   },
   "result_server": {
-    "host": "10.239.115.92",
-    "username": "banana",
-    "password": "000"
+    "host": "powerbuilder.sh.intel.com",
+    "username": "webnn",
+    "password": "",
+    "reportDir": "/home/webnn/project/webpnp/"
   },
   "chrome_linux_password": "",
   "dev_mode": false,

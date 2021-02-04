@@ -6,6 +6,9 @@ const runSpeedometer2 = require('./workloads/speedometer2.js');
 const runWebXPRT3 = require('./workloads/webxprt3.js');
 const runUnity3D = require('./workloads/unity3d.js');
 const runJetStream2 = require('./workloads/jetstream2.js');
+const runAquarium = require('./workloads/aquarium.js');
+const runBasemark = require('./workloads/basemark.js');
+const runTensorflow = require('./workloads/tensorflow.js');
 const settings = require('../config.json');
 const Client = require('ssh2-sftp-client');
 
@@ -41,11 +44,10 @@ async function runWorkload(workload, executor) {
     await executor(workload, flags);
   }
   for (let i = 0; i < workload.run_times; i++) {
+    await new Promise(resolve => setTimeout(resolve, workload.sleep_interval * 1000)); // sleep for a while before next time running
     let thisScore = await executor(workload, flags);
     originScoresArray.push(thisScore);
     scoresArray.push(thisScore);
-
-    await new Promise(resolve => setTimeout(resolve, workload.sleep_interval * 1000)); // sleep for a while before next time running
   }
 
   sortScores(scoresArray, 'scores', 'Total Score');
@@ -71,7 +73,7 @@ async function runWorkload(workload, executor) {
 async function storeTestData(deviceInfo, workload, jsonData) {
   let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
   if (!fs.existsSync(testResultsDir)) {
-    fs.mkdirSync(testResultsDir, {recursive: true});
+    fs.mkdirSync(testResultsDir, { recursive: true });
   }
 
   let cpuInfo = [deviceInfo['CPU']['mfr'], deviceInfo['CPU']['info'].replace(/\s/g, '-')].join('-');
@@ -79,8 +81,8 @@ async function storeTestData(deviceInfo, workload, jsonData) {
   let isoDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
   let jsonDate = isoDate.toISOString().split('.')[0].replace(/T|-|:/g, '');
   let browser = deviceInfo['Browser'];
-  let jsonFilename = jsonDate + '_' + cpuInfo + '_' + browser + '.json';
-  let absJSONFilename = path.join(testResultsDir, jsonFilename);
+  let jsonFileName = jsonDate + '_' + cpuInfo + '_' + browser + '.json';
+  let absJSONFilename = path.join(testResultsDir, jsonFileName);
 
   await fsPromises.writeFile(absJSONFilename, JSON.stringify(jsonData, null, 4));
   return Promise.resolve(absJSONFilename);
@@ -92,9 +94,6 @@ async function storeTestData(deviceInfo, workload, jsonData) {
 */
 
 async function genWorkloadResult(deviceInfo, workload, executor) {
-  if (!settings.dev_mode) {
-    await syncRemoteDirectory(workload, 'pull');
-  }
   let results = await runWorkload(workload, executor);
   let jsonData = {
     'workload': workload.name,
@@ -107,22 +106,21 @@ async function genWorkloadResult(deviceInfo, workload, executor) {
   }
   console.log(JSON.stringify(jsonData, null, 4));
 
-  let jsonFilename = await storeTestData(deviceInfo, workload, jsonData);
+  let jsonFileName = await storeTestData(deviceInfo, workload, jsonData);
   if (!settings.dev_mode) {
-    await syncRemoteDirectory(workload, 'push');
+    await syncRemoteDirectory(workload, jsonFileName, 'push');
   }
-  return Promise.resolve(jsonFilename);
+  return Promise.resolve(jsonFileName);
 }
 
 /*
 * Sync local test results directory with the one in remote server.
 */
-async function syncRemoteDirectory(workload, action) {
+async function syncRemoteDirectory(workload, fileName, action) {
   let testResultsDir = path.join(process.cwd(), 'results', getPlatformName(), workload.name);
   if (!fs.existsSync(testResultsDir)) {
-    fs.mkdirSync(testResultsDir, {recursive: true});
+    fs.mkdirSync(testResultsDir, { recursive: true });
   }
-  let localResultFiles = await fsPromises.readdir(testResultsDir);
 
   const serverConfig = {
     host: settings.result_server.host,
@@ -131,7 +129,7 @@ async function syncRemoteDirectory(workload, action) {
   };
 
   let currentPlatform = getPlatformName();
-  let remoteResultDir = `/home/${settings.result_server.username}/webpnp/results/${currentPlatform}/${workload.name}`;
+  let remoteResultDir = `${settings.result_server.reportDir}/new-results/${currentPlatform}/${workload.name}`;
   let sftp = new Client();
   try {
     await sftp.connect(serverConfig);
@@ -147,19 +145,17 @@ async function syncRemoteDirectory(workload, action) {
         if (!fs.existsSync(path.join(testResultsDir, remoteFile.name))) {
           console.log(`Downloading remote file: ${remoteFile.name}...`);
           await sftp.fastGet(remoteResultDir + '/' + remoteFile.name,
-                            path.join(testResultsDir, remoteFile.name));
+            path.join(testResultsDir, remoteFile.name));
           console.log(`Remote file: ${remoteFile.name} downloaded.`);
         }
       }
     } else if (action === 'push') {
-      for (let localFile of localResultFiles) {
-        let absRemoteFilename = remoteResultDir + `/${localFile}`;
-        let remoteFileExist = await sftp.exists(absRemoteFilename);
-        if (!remoteFileExist) {
-          console.log(`Uploading local file: ${localFile}`);
-          await sftp.fastPut(path.join(testResultsDir, localFile), absRemoteFilename);
-          console.log(`${localFile} uploaded to remote server.`);
-        }
+      let absRemoteFileName = remoteResultDir + `/${path.basename(fileName)}`;
+      let remoteFileExist = await sftp.exists(absRemoteFileName);
+      if (!remoteFileExist) {
+        console.log(`Uploading local file: ${fileName}`);
+        await sftp.fastPut(fileName, absRemoteFileName);
+        console.log(`${fileName} uploaded to remote server.`);
       }
     }
   } catch (err) {
@@ -184,14 +180,15 @@ async function syncRemoteDirectory(workload, action) {
 async function searchTestResults(cpu, browserChannel, browserVersion) {
   let results = {};
   for (let workload of settings.workloads) {
-    let testResultDir = await syncRemoteDirectory(workload, 'pull');
+    // let testResultDir = await syncRemoteDirectory(workload, '', 'pull');
+    let testResultDir = path.join(process.cwd(), 'results', 'Windows', workload.name);
     let resultFiles = await fs.promises.readdir(testResultDir);
     let result = [];
     for (let file of resultFiles) {
       if (file.includes(cpu) && file.includes(browserChannel) && file.includes(browserVersion))
         result.push(file);
     }
-    if(result.length !== 1)
+    if (result.length !== 1)
       return Promise.reject(`Error: unexpected result length: ${result.length}`);
     results[workload.name] = path.join(testResultDir, result[0]);
   }
@@ -204,10 +201,23 @@ async function searchTestResults(cpu, browserChannel, browserVersion) {
  */
 async function pullRemoteResults() {
   for (let workload of settings.workloads) {
-    await syncRemoteDirectory(workload, 'pull');
+    await syncRemoteDirectory(workload, '', 'pull');
   }
   return Promise.resolve();
 }
+
+/**
+ * Clean up local results folder
+ */
+async function cleanUpResultFiles() {
+  let resultsDir = path.join(process.cwd(), 'results');
+  if (fs.existsSync(resultsDir)) {
+    fs.rmdirSync(resultsDir, { recursive: true });
+  }
+
+  return Promise.resolve();
+}
+
 /*
 * Run all the workloads defined in ../config.json and 
 * generate the results to the ../results directory.
@@ -223,7 +233,11 @@ async function genWorkloadsResults(deviceInfo) {
     'Speedometer2': runSpeedometer2,
     'WebXPRT3': runWebXPRT3,
     'Unity3D': runUnity3D,
-    'JetStream2': runJetStream2
+    'JetStream2': runJetStream2,
+    'Aquarium': runAquarium,
+    'BaseMark': runBasemark,
+    'TensorFlow_Wasm': runTensorflow,
+    'TensorFlow_WebGL': runTensorflow
   };
   for (const workload of settings.workloads) {
     let executor = executors[workload.name];
@@ -233,10 +247,10 @@ async function genWorkloadsResults(deviceInfo) {
   return Promise.resolve(results);
 }
 
-
 module.exports = {
   getPlatformName: getPlatformName,
-  searchTestResults: searchTestResults,
-  pullRemoteResults: pullRemoteResults,
-  genWorkloadsResults: genWorkloadsResults
+  // searchTestResults: searchTestResults,
+  // pullRemoteResults: pullRemoteResults,
+  genWorkloadsResults: genWorkloadsResults,
+  cleanUpResultFiles: cleanUpResultFiles
 }
